@@ -1024,7 +1024,7 @@
     document.getElementById('confirm-btn').style.display = 'none';
     document.getElementById('loader-emoji').textContent = '🎨';
     document.getElementById('loader-title').textContent = 'Dibujando la magia!';
-    document.getElementById('loader-sub').textContent = 'Nuestra IA esta convirtiendo a ' + name + ' en el protagonista de su historia...';
+    document.getElementById('loader-sub').textContent = 'Nuestra IA esta convirtiendo a ' + name + ' en el protagonista...';
 
     const bar = document.getElementById('progress-bar');
     bar.style.animation = 'none';
@@ -1055,8 +1055,7 @@
       document.getElementById('loader-title').textContent = 'Muestras listas!';
       document.getElementById('loader-sub').textContent = 'Elige tu pack y ve tus 2 paginas de muestra.';
       document.getElementById('confirm-btn').style.display = 'block';
-      document.getElementById('confirm-btn').onclick = initiatePayment;
-      
+      document.getElementById('confirm-btn').onclick = showSamples;
 
     } catch (error) {
       console.error(error);
@@ -1072,63 +1071,67 @@
     el.classList.add('selected');
   }
 
- async function initiatePayment() {
-    const selectedPack = document.querySelector('.pack-option.selected');
-    const packPrice = selectedPack ? selectedPack.querySelector('.pack-price').textContent.replace('$','') : '7.99';
-    const packLabel = selectedPack ? selectedPack.querySelector('.pack-label').textContent : 'Pack Explorador';
+  function showSamples() {
+    const modal = document.getElementById('modal');
+    const box = modal.querySelector('.modal-box');
 
-    const btn = document.getElementById('confirm-btn');
-    btn.textContent = 'Procesando pago...';
+    const selectedPackEl = document.querySelector('.pack-option.selected');
+    const packPrice = selectedPackEl ? selectedPackEl.querySelector('.pack-price').textContent : '$7.99';
+    const packLabel = selectedPackEl ? selectedPackEl.querySelector('.pack-label').textContent : 'Pack Explorador';
+
+    const makeImg = function(src, emoji) {
+      if (src) {
+        return '<div style="position:relative;width:130px;height:170px;">'
+          + '<img src="' + src + '" style="width:130px;height:170px;object-fit:cover;border-radius:12px;pointer-events:none;" draggable="false"/>'
+          + '<div style="position:absolute;inset:0;overflow:hidden;border-radius:12px;display:flex;align-items:center;justify-content:center;pointer-events:none;">'
+          + '<div style="transform:rotate(-35deg);font-size:0.6rem;color:rgba(26,5,51,0.25);white-space:nowrap;line-height:2.5;font-weight:700;">'
+          + 'MAGICA TRAMA • MAGICA TRAMA<br>MAGICA TRAMA • MAGICA TRAMA<br>MAGICA TRAMA • MAGICA TRAMA'
+          + '</div></div></div>';
+      }
+      return '<div style="width:130px;height:170px;background:#f0e0ff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;">' + emoji + '</div>';
+    };
+
+    box.innerHTML = '<div style="font-size:3.5rem;margin-bottom:12px;">🎉</div>'
+      + '<div style="font-family:Fredoka One,cursive;font-size:1.8rem;color:#1A0533;margin-bottom:8px;">Aqui estan!</div>'
+      + '<p style="color:#5A3E7A;font-size:0.9rem;line-height:1.7;margin-bottom:20px;">Tus 2 paginas de muestra. Compra el pack y recibe todas las paginas en tu correo.</p>'
+      + '<div style="display:flex;gap:16px;justify-content:center;margin-bottom:16px;">'
+      + makeImg(generatedImages[0], '🦁')
+      + makeImg(generatedImages[1], '🚀')
+      + '</div>'
+      + '<div style="background:rgba(26,5,51,0.05);border-radius:12px;padding:10px 14px;font-size:0.75rem;color:#5A3E7A;margin-bottom:16px;">Muestra protegida con marca de agua</div>'
+      + '<button id="pay-btn" style="width:100%;padding:15px;background:linear-gradient(135deg,#FF6B6B,#FF4757);color:white;font-family:Nunito,sans-serif;font-weight:800;font-size:1.05rem;border:none;border-radius:14px;cursor:pointer;margin-bottom:8px;">'
+      + 'Comprar ' + packLabel + ' — ' + packPrice
+      + '</button>'
+      + '<p style="font-size:0.78rem;color:#5A3E7A;">20% de descuento en los proximos <strong style="color:#FF6B6B">10 minutos</strong></p>';
+
+    document.getElementById('pay-btn').addEventListener('click', function() {
+      initiatePayment(packPrice.replace('$',''), packLabel);
+    });
+  }
+
+  async function initiatePayment(amount, packLabel) {
+    const btn = document.getElementById('pay-btn');
+    btn.textContent = 'Procesando...';
     btn.disabled = true;
 
     try {
       const response = await fetch('/api/payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: packPrice, packLabel: packLabel })
+        body: JSON.stringify({ amount: amount, packLabel: packLabel })
       });
 
       const data = await response.json();
-
       if (!response.ok) throw new Error(data.error || 'Error al crear el pago');
 
       window.location.href = data.approvalUrl;
 
     } catch (error) {
       console.error(error);
-      btn.textContent = 'Ver mis 2 paginas de muestra';
+      btn.textContent = 'Comprar ' + packLabel;
       btn.disabled = false;
       alert('Hubo un error al procesar el pago. Intenta de nuevo.');
     }
-  
-    const modal = document.getElementById('modal');
-    const box = modal.querySelector('.modal-box');
-
-    const selectedPack = document.querySelector('.pack-option.selected');
-    const packPrice = selectedPack ? selectedPack.querySelector('.pack-price').textContent : '$12.99';
-    const packLabel = selectedPack ? selectedPack.querySelector('.pack-label').textContent : 'Pack Explorador';
-
-    const makeImg = (src, color1, color2, emoji) => src
-      ? '<div style="position:relative;width:130px;height:170px;">'
-        + '<img src="' + src + '" style="width:130px;height:170px;object-fit:cover;border-radius:12px;pointer-events:none;" draggable="false"/>'
-        + '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;overflow:hidden;border-radius:12px;">'
-        + '<div style="transform:rotate(-35deg);font-size:0.6rem;color:rgba(26,5,51,0.2);white-space:nowrap;line-height:2.2;letter-spacing:0.05em;font-weight:700;">'
-        + 'MAGICA TRAMA • MAGICA TRAMA • MAGICA TRAMA<br>MAGICA TRAMA • MAGICA TRAMA • MAGICA TRAMA<br>MAGICA TRAMA • MAGICA TRAMA • MAGICA TRAMA'
-        + '</div></div></div>'
-      : '<div style="width:130px;height:170px;background:linear-gradient(135deg,' + color1 + ',' + color2 + ');border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;">' + emoji + '</div>';
-
-    box.innerHTML = '<div style="font-size:3.5rem;margin-bottom:12px;">🎉</div>'
-      + '<div style="font-family:Fredoka One,cursive;font-size:1.8rem;color:#1A0533;margin-bottom:8px;">Aqui estan!</div>'
-      + '<p style="color:#5A3E7A;font-size:0.9rem;line-height:1.7;margin-bottom:20px;">Tus 2 paginas de muestra. Compra el pack completo y recibiras todas las paginas en tu correo en minutos.</p>'
-      + '<div style="display:flex;gap:16px;justify-content:center;margin-bottom:16px;">'
-      + makeImg(generatedImages[0], '#f0e0ff', '#ddf0ff', '🦁')
-      + makeImg(generatedImages[1], '#fff0dd', '#ffeef5', '🚀')
-      + '</div>'
-      + '<div style="background:rgba(26,5,51,0.05);border-radius:12px;padding:10px 14px;font-size:0.75rem;color:#5A3E7A;margin-bottom:20px;">Muestra protegida con marca de agua</div>'
-      + '<button onclick="document.getElementById(\'modal\').classList.remove(\'active\')" style="width:100%;padding:15px;background:linear-gradient(135deg,#FF6B6B,#FF4757);color:white;font-family:Nunito,sans-serif;font-weight:800;font-size:1.05rem;border:none;border-radius:14px;cursor:pointer;">'
-      + 'Comprar ' + packLabel + ' — ' + packPrice
-      + '</button>'
-      + '<p style="margin-top:12px;font-size:0.78rem;color:#5A3E7A;">20% de descuento en los proximos <strong style="color:#FF6B6B">10 minutos</strong></p>';
   }
 </script>
 
