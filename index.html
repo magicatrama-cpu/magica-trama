@@ -1055,6 +1055,8 @@
       document.getElementById('loader-title').textContent = 'Muestras listas!';
       document.getElementById('loader-sub').textContent = 'Elige tu pack y ve tus 2 paginas de muestra.';
       document.getElementById('confirm-btn').style.display = 'block';
+      document.getElementById('confirm-btn').onclick = initiatePayment;
+      
 
     } catch (error) {
       console.error(error);
@@ -1070,7 +1072,35 @@
     el.classList.add('selected');
   }
 
-  function confirmOrder() {
+ async function initiatePayment() {
+    const selectedPack = document.querySelector('.pack-option.selected');
+    const packPrice = selectedPack ? selectedPack.querySelector('.pack-price').textContent.replace('$','') : '7.99';
+    const packLabel = selectedPack ? selectedPack.querySelector('.pack-label').textContent : 'Pack Explorador';
+
+    const btn = document.getElementById('confirm-btn');
+    btn.textContent = 'Procesando pago...';
+    btn.disabled = true;
+
+    try {
+      const response = await fetch('/api/payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: packPrice, packLabel: packLabel })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.error || 'Error al crear el pago');
+
+      window.location.href = data.approvalUrl;
+
+    } catch (error) {
+      console.error(error);
+      btn.textContent = 'Ver mis 2 paginas de muestra';
+      btn.disabled = false;
+      alert('Hubo un error al procesar el pago. Intenta de nuevo.');
+    }
+  
     const modal = document.getElementById('modal');
     const box = modal.querySelector('.modal-box');
 
