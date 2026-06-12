@@ -963,7 +963,6 @@
   }
 
   document.addEventListener('DOMContentLoaded', function() {
-
     document.getElementById('file-input').addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -978,14 +977,15 @@
     });
 
     const zone = document.getElementById('upload-zone');
-    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
-    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-    zone.addEventListener('drop', e => {
-      e.preventDefault(); zone.classList.remove('drag-over');
+    zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', function() { zone.classList.remove('drag-over'); });
+    zone.addEventListener('drop', function(e) {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
       const file = e.dataTransfer.files[0];
       if (file && file.type.startsWith('image/')) {
         const reader = new FileReader();
-        reader.onload = ev => {
+        reader.onload = function(ev) {
           const preview = document.getElementById('preview-img');
           preview.src = ev.target.result;
           preview.style.display = 'block';
@@ -999,23 +999,24 @@
       if (e.target === this) this.classList.remove('active');
     });
 
-    document.addEventListener('contextmenu', e => {
+    document.addEventListener('contextmenu', function(e) {
       if (e.target.tagName === 'IMG') e.preventDefault();
     });
-
   });
 
   function scrollToForm() {
     document.getElementById('creation-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  let generatedImages = [];
+  var generatedImages = [];
 
-  async function startGeneration() {
-    const name = document.getElementById('child-name').value.trim();
-    const story = document.getElementById('story-input').value.trim();
-    const fileInput = document.getElementById('file-input');
+  function startGeneration() {
+    var name = document.getElementById('child-name').value.trim();
+    var story = document.getElementById('story-input').value.trim();
+    var email = document.getElementById('customer-email').value.trim();
+    var fileInput = document.getElementById('file-input');
 
+    if (!email) { alert('Escribe tu correo electronico'); return; }
     if (!name) { alert('Escribe el nombre del nino o nina'); return; }
     if (!story) { alert('Cuentanos la tematica o historia'); return; }
     if (!fileInput.files[0]) { alert('Sube una foto del protagonista'); return; }
@@ -1028,60 +1029,59 @@
     document.getElementById('loader-title').textContent = 'Dibujando la magia!';
     document.getElementById('loader-sub').textContent = 'Nuestra IA esta convirtiendo a ' + name + ' en el protagonista...';
 
-    const bar = document.getElementById('progress-bar');
+    var bar = document.getElementById('progress-bar');
     bar.style.animation = 'none';
     bar.offsetWidth;
     bar.style.animation = '';
 
-    const file = fileInput.files[0];
-    const imageBase64 = await new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = e => resolve(e.target.result.split(',')[1]);
-      reader.readAsDataURL(file);
-    });
+    var file = fileInput.files[0];
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var imageBase64 = e.target.result.split(',')[1];
+      callGenerateAPI(name, story, imageBase64);
+    };
+    reader.readAsDataURL(file);
+  }
 
-    try {
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ childName: name, story: story, imageBase64: imageBase64 })
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Error del servidor');
-
-      generatedImages = data.images;
-
+  function callGenerateAPI(name, story, imageBase64) {
+    fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ childName: name, story: story, imageBase64: imageBase64 })
+    })
+    .then(function(response) { return response.json().then(function(data) { return { ok: response.ok, data: data }; }); })
+    .then(function(result) {
+      if (!result.ok) throw new Error(result.data.error || 'Error del servidor');
+      generatedImages = result.data.images;
       document.getElementById('pack-selector').style.display = 'block';
       document.getElementById('loader-emoji').textContent = '✅';
       document.getElementById('loader-title').textContent = 'Muestras listas!';
       document.getElementById('loader-sub').textContent = 'Elige tu pack y ve tus 2 paginas de muestra.';
       document.getElementById('confirm-btn').style.display = 'block';
       document.getElementById('confirm-btn').onclick = showSamples;
-
-    } catch (error) {
+    })
+    .catch(function(error) {
       console.error(error);
       document.getElementById('loader-emoji').textContent = '😔';
       document.getElementById('loader-title').textContent = 'Algo salio mal';
       document.getElementById('loader-sub').textContent = 'Hubo un error. Por favor intenta de nuevo.';
-      setTimeout(() => document.getElementById('modal').classList.remove('active'), 3000);
-    }
+      setTimeout(function() { document.getElementById('modal').classList.remove('active'); }, 3000);
+    });
   }
 
   function selectPack(el, label, price) {
-    document.querySelectorAll('.pack-option').forEach(o => o.classList.remove('selected'));
+    document.querySelectorAll('.pack-option').forEach(function(o) { o.classList.remove('selected'); });
     el.classList.add('selected');
   }
 
   function showSamples() {
-    const modal = document.getElementById('modal');
-    const box = modal.querySelector('.modal-box');
+    var modal = document.getElementById('modal');
+    var box = modal.querySelector('.modal-box');
+    var selectedPackEl = document.querySelector('.pack-option.selected');
+    var packPrice = selectedPackEl ? selectedPackEl.querySelector('.pack-price').textContent : '$7.99';
+    var packLabel = selectedPackEl ? selectedPackEl.querySelector('.pack-label').textContent : 'Pack Explorador';
 
-    const selectedPackEl = document.querySelector('.pack-option.selected');
-    const packPrice = selectedPackEl ? selectedPackEl.querySelector('.pack-price').textContent : '$7.99';
-    const packLabel = selectedPackEl ? selectedPackEl.querySelector('.pack-label').textContent : 'Pack Explorador';
-
-    const makeImg = function(src, emoji) {
+    function makeImg(src, emoji) {
       if (src) {
         return '<div style="position:relative;width:130px;height:170px;">'
           + '<img src="' + src + '" style="width:130px;height:170px;object-fit:cover;border-radius:12px;pointer-events:none;" draggable="false"/>'
@@ -1091,7 +1091,7 @@
           + '</div></div></div>';
       }
       return '<div style="width:130px;height:170px;background:#f0e0ff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;">' + emoji + '</div>';
-    };
+    }
 
     box.innerHTML = '<div style="font-size:3.5rem;margin-bottom:12px;">🎉</div>'
       + '<div style="font-family:Fredoka One,cursive;font-size:1.8rem;color:#1A0533;margin-bottom:8px;">Aqui estan!</div>'
@@ -1111,15 +1111,14 @@
     });
   }
 
-  async function initiatePayment(amount, packLabel) {
-    const btn = document.getElementById('pay-btn');
+  function initiatePayment(amount, packLabel) {
+    var btn = document.getElementById('pay-btn');
     btn.textContent = 'Procesando...';
     btn.disabled = true;
 
-    // Guardar datos del pedido para recuperarlos despues del pago
-    const orderData = {
+    var orderData = {
       customerName: document.getElementById('child-name').value.trim(),
-      customerEmail: document.getElementById('customer-email') ? document.getElementById('customer-email').value.trim() : '',
+      customerEmail: document.getElementById('customer-email').value.trim(),
       childName: document.getElementById('child-name').value.trim(),
       story: document.getElementById('story-input').value.trim(),
       packLabel: packLabel,
@@ -1127,47 +1126,22 @@
     };
     localStorage.setItem('magicatrama_order', JSON.stringify(orderData));
 
-    try {
-      const response = await fetch('/api/payment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: amount, packLabel: packLabel })
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Error al crear el pago');
-
-      window.location.href = data.approvalUrl;
-
-    } catch (error) {
+    fetch('/api/payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: amount, packLabel: packLabel })
+    })
+    .then(function(response) { return response.json().then(function(data) { return { ok: response.ok, data: data }; }); })
+    .then(function(result) {
+      if (!result.ok) throw new Error(result.data.error || 'Error al crear el pago');
+      window.location.href = result.data.approvalUrl;
+    })
+    .catch(function(error) {
       console.error(error);
       btn.textContent = 'Comprar ' + packLabel;
       btn.disabled = false;
       alert('Hubo un error al procesar el pago. Intenta de nuevo.');
-    }
-  }
-    const btn = document.getElementById('pay-btn');
-    btn.textContent = 'Procesando...';
-    btn.disabled = true;
-
-    try {
-      const response = await fetch('/api/payment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: amount, packLabel: packLabel })
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Error al crear el pago');
-
-      window.location.href = data.approvalUrl;
-
-    } catch (error) {
-      console.error(error);
-      btn.textContent = 'Comprar ' + packLabel;
-      btn.disabled = false;
-      alert('Hubo un error al procesar el pago. Intenta de nuevo.');
-    }
+    });
   }
 </script>
 
