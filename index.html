@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Mágica Trama — Donde tu imaginación toma el color</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --night: #1A0533;
+    --lavender-bg: #F7E8FF;
+    --coral: #FF6B6B;
+    --yellow: #FFD166;
+    --sky: #4CC9F0;
+    --white: #FFFFFF;
+    --text-dark: #2D1B4E;
+    --text-mid: #5A3E7A;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--lavender-bg);
+    color: var(--text-dark);
+    overflow-x: hidden;
+  }
+
+  /* ── NAVBAR ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 40px;
+    background: rgba(247, 232, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1.5px solid rgba(76, 201, 240, 0.2);
+  }
+  .logo {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.5rem;
+    color: var(--night);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .logo-star { color: var(--yellow); animation: spin 8s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .nav-cta {
+    background: var(--coral);
+    color: white; font-family: 'Nunito', sans-serif;
+    font-weight: 800; font-size: 0.9rem;
+    padding: 10px 22px; border-radius: 50px; border: none;
+    cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 14px rgba(255,107,107,0.4);
+  }
+  .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,107,107,0.5); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: grid; grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 100px 60px 60px;
+    gap: 40px;
+    background: radial-gradient(ellipse at 70% 40%, rgba(76,201,240,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse at 20% 80%, rgba(255,209,102,0.15) 0%, transparent 50%);
+  }
+
+  .hero-text { max-width: 560px; }
+
+  .eyebrow {
+    font-size: 0.8rem; font-weight: 800; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--sky);
+    background: rgba(76,201,240,0.12);
+    padding: 6px 14px; border-radius: 50px;
+    display: inline-block; margin-bottom: 22px;
+  }
+
+  .hero-headline {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2.6rem, 5vw, 4.2rem);
+    line-height: 1.1;
+    color: var(--night);
+    margin-bottom: 20px;
+  }
+
+  /* Brush-draw animation on the highlight word */
+  .brush-word {
+    position: relative; display: inline-block; color: var(--coral);
+  }
+  .brush-word::after {
+    content: '';
+    position: absolute; bottom: 2px; left: -4px; right: -4px; height: 100%;
+    background: var(--yellow);
+    border-radius: 4px;
+    z-index: -1;
+    transform: scaleX(0); transform-origin: left;
+    animation: brushDraw 1s cubic-bezier(0.23,1,0.32,1) 0.6s forwards;
+    opacity: 0.35;
+  }
+  @keyframes brushDraw { to { transform: scaleX(1); } }
+
+  .hero-sub {
+    font-size: 1.1rem; line-height: 1.75; color: var(--text-mid);
+    margin-bottom: 36px; max-width: 440px;
+  }
+
+  /* ── FORM ── */
+  .creation-form {
+    background: var(--white);
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: 0 8px 40px rgba(26,5,51,0.1), 0 2px 8px rgba(26,5,51,0.05);
+    border: 2px solid rgba(76,201,240,0.2);
+  }
+
+  .form-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.3rem; color: var(--night);
+    margin-bottom: 22px; display: flex; align-items: center; gap: 8px;
+  }
+  .form-title span { font-size: 1.5rem; }
+
+  .field-group { margin-bottom: 18px; }
+  .field-group label {
+    display: block; font-weight: 700; font-size: 0.85rem;
+    color: var(--text-mid); margin-bottom: 7px; letter-spacing: 0.03em;
+  }
+  .field-group input,
+  .field-group textarea,
+  .field-group select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid rgba(90,62,122,0.2);
+    border-radius: 14px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    color: var(--night);
+    background: var(--lavender-bg);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+  .field-group input:focus,
+  .field-group textarea:focus,
+  .field-group select:focus {
+    border-color: var(--sky);
+    box-shadow: 0 0 0 4px rgba(76,201,240,0.15);
+  }
+  .field-group textarea { resize: vertical; min-height: 90px; }
+
+  /* Upload zone */
+  .upload-zone {
+    border: 2.5px dashed rgba(90,62,122,0.3);
+    border-radius: 14px;
+    padding: 28px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    background: var(--lavender-bg);
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--sky);
+    background: rgba(76,201,240,0.08);
+  }
+  .upload-icon { font-size: 2.2rem; margin-bottom: 8px; }
+  .upload-label { font-weight: 700; color: var(--text-mid); font-size: 0.9rem; }
+  .upload-sub { font-size: 0.78rem; color: #9B8AAD; margin-top: 3px; }
+  #file-input { display: none; }
+  .upload-preview {
+    width: 80px; height: 80px; border-radius: 50%;
+    object-fit: cover; border: 3px solid var(--sky);
+    display: none; margin: 0 auto 10px;
+  }
+
+  .generate-btn {
+    width: 100%; padding: 16px;
+    background: linear-gradient(135deg, var(--coral), #FF4757);
+    color: white; font-family: 'Nunito', sans-serif;
+    font-weight: 800; font-size: 1.1rem;
+    border: none; border-radius: 16px;
+    cursor: pointer; margin-top: 10px;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 6px 20px rgba(255,107,107,0.45);
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .generate-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(255,107,107,0.55); }
+  .generate-btn .btn-icon { font-size: 1.3rem; }
+
+  .trust-badges {
+    display: flex; align-items: center; justify-content: center;
+    gap: 16px; margin-top: 14px; flex-wrap: wrap;
+  }
+  .badge {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 0.75rem; color: var(--text-mid); font-weight: 600;
+  }
+  .badge-icon { font-size: 0.9rem; }
+
+  /* ── FLOATING BOOK VISUAL ── */
+  .hero-visual {
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .book-mockup {
+    width: 320px; height: 400px;
+    background: linear-gradient(145deg, #fff 0%, #f0e0ff 100%);
+    border-radius: 12px 24px 24px 12px;
+    box-shadow: 12px 12px 40px rgba(26,5,51,0.2), -4px 0 0 #e0c8f8, inset 2px 0 0 rgba(255,255,255,0.8);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+    animation: float 4s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+    50% { transform: translateY(-14px) rotate(1deg); }
+  }
+  .book-spine {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 22px;
+    background: linear-gradient(135deg, #C49BE8, #A06DC8);
+    border-radius: 4px 0 0 4px;
+  }
+  .book-content { padding: 24px 24px 24px 38px; text-align: center; width: 100%; }
+  .book-title-text {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem; color: var(--night);
+    margin-bottom: 10px;
+  }
+  .child-name-display {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.6rem; color: var(--coral);
+    min-height: 2rem;
+    transition: all 0.3s;
+  }
+
+  /* Illustration placeholder inside book */
+  .book-illustration {
+    width: 180px; height: 180px;
+    background: linear-gradient(135deg, #ffe0f5, #e0f0ff);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 5rem; margin: 10px auto;
+    border: 3px dashed rgba(160,109,200,0.4);
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+  @keyframes pulse-glow {
+    0%,100% { box-shadow: 0 0 0 0 rgba(160,109,200,0); }
+    50% { box-shadow: 0 0 0 12px rgba(160,109,200,0.15); }
+  }
+
+  .stars-deco {
+    position: absolute;
+    font-size: 1.4rem;
+    animation: twinkle 2.5s ease-in-out infinite;
+  }
+  .star-1 { top: 12%; right: 14%; animation-delay: 0s; }
+  .star-2 { bottom: 16%; left: 8%; animation-delay: 0.8s; color: var(--yellow); }
+  .star-3 { top: 50%; right: -5%; animation-delay: 1.5s; color: var(--sky); }
+  @keyframes twinkle {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  /* ── HOW IT WORKS ── */
+  .how-section {
+    padding: 80px 60px;
+    background: var(--night);
+    position: relative; overflow: hidden;
+  }
+  .how-section::before {
+    content: '';
+    position: absolute; top: -60px; left: 0; right: 0; height: 80px;
+    background: var(--lavender-bg);
+    clip-path: ellipse(55% 100% at 50% 0%);
+  }
+  .section-header {
+    text-align: center; margin-bottom: 56px;
+  }
+  .section-eyebrow {
+    font-size: 0.75rem; font-weight: 800; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--yellow);
+    display: block; margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: var(--white); line-height: 1.15;
+  }
+
+  .steps-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 28px; max-width: 900px; margin: 0 auto;
+  }
+  .step-card {
+    background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 20px; padding: 32px 24px;
+    text-align: center;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .step-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(76,201,240,0.4);
+  }
+  .step-emoji { font-size: 2.6rem; margin-bottom: 14px; display: block; }
+  .step-num {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.8rem; color: var(--sky); letter-spacing: 0.1em;
+    margin-bottom: 8px; display: block;
+  }
+  .step-name {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.25rem; color: var(--white); margin-bottom: 10px;
+  }
+  .step-desc { font-size: 0.88rem; color: rgba(255,255,255,0.6); line-height: 1.65; }
+
+  /* ── LINES / PRODUCTS ── */
+  .lines-section {
+    padding: 80px 60px;
+    background: var(--lavender-bg);
+  }
+  .lines-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 24px; max-width: 1000px; margin: 0 auto;
+  }
+  .line-card {
+    background: var(--white);
+    border-radius: 20px; padding: 36px 28px;
+    border: 2px solid transparent;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .line-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 5px;
+  }
+  .line-a::before { background: linear-gradient(90deg, var(--coral), var(--yellow)); }
+  .line-b::before { background: linear-gradient(90deg, var(--sky), #6C63FF); }
+  .line-c::before { background: linear-gradient(90deg, var(--yellow), #FF6B6B); }
+  .line-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(26,5,51,0.12);
+    border-color: rgba(76,201,240,0.25);
+  }
+  .line-icon { font-size: 2.8rem; margin-bottom: 16px; display: block; }
+  .line-tag {
+    font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--text-mid);
+    background: var(--lavender-bg); padding: 4px 10px; border-radius: 50px;
+    display: inline-block; margin-bottom: 12px;
+  }
+  .line-name {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.4rem; color: var(--night); margin-bottom: 10px;
+  }
+  .line-desc { font-size: 0.9rem; color: var(--text-mid); line-height: 1.7; }
+
+  /* ── PRICING ── */
+  .pricing-section {
+    padding: 80px 60px;
+    background: linear-gradient(160deg, #1A0533 60%, #2D0A5A 100%);
+    position: relative; overflow: hidden;
+  }
+  .pricing-section::before {
+    content: '';
+    position: absolute; top: -60px; left: 0; right: 0; height: 80px;
+    background: var(--lavender-bg);
+    clip-path: ellipse(55% 100% at 50% 0%);
+  }
+  .pricing-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 24px; max-width: 900px; margin: 0 auto;
+  }
+  .price-card {
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 20px; padding: 36px 28px;
+    text-align: center;
+    transition: transform 0.2s, border-color 0.2s;
+    position: relative;
+  }
+  .price-card.featured {
+    background: var(--white);
+    border-color: var(--yellow);
+    transform: scale(1.04);
+  }
+  .popular-badge {
+    position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+    background: var(--yellow);
+    color: var(--night); font-family: 'Nunito', sans-serif;
+    font-weight: 800; font-size: 0.72rem; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 5px 16px; border-radius: 50px;
+    white-space: nowrap;
+  }
+  .price-icon { font-size: 2.4rem; margin-bottom: 14px; display: block; }
+  .price-type {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.3rem;
+    color: var(--night);
+  }
+  .price-card:not(.featured) .price-type { color: var(--white); }
+  .price-amount {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.8rem; color: var(--coral);
+    margin: 12px 0 4px;
+    display: block;
+  }
+  .price-card.featured .price-amount { color: var(--coral); }
+  .price-sub { font-size: 0.8rem; color: var(--text-mid); margin-bottom: 22px; }
+  .price-card:not(.featured) .price-sub { color: rgba(255,255,255,0.5); }
+  .price-features { list-style: none; margin-bottom: 26px; text-align: left; }
+  .price-features li {
+    font-size: 0.87rem; padding: 6px 0;
+    display: flex; align-items: flex-start; gap: 8px;
+    color: rgba(255,255,255,0.75);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .price-card.featured .price-features li { color: var(--text-mid); border-color: rgba(0,0,0,0.07); }
+  .check { color: var(--sky); font-size: 0.9rem; flex-shrink: 0; margin-top: 1px; }
+  .price-card.featured .check { color: var(--coral); }
+  .price-btn {
+    width: 100%; padding: 14px;
+    border-radius: 14px; border: 2px solid rgba(255,255,255,0.25);
+    background: transparent; color: white;
+    font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 1rem;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .price-card.featured .price-btn {
+    background: linear-gradient(135deg, var(--coral), #FF4757);
+    border-color: transparent; color: white;
+    box-shadow: 0 6px 18px rgba(255,107,107,0.4);
+  }
+  .price-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+
+  /* ── TESTIMONIALS ── */
+  .testimonials-section { padding: 80px 60px; background: var(--lavender-bg); }
+  .testimonials-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 24px; max-width: 960px; margin: 0 auto;
+  }
+  .testimonial-card {
+    background: var(--white); border-radius: 20px; padding: 30px;
+    border: 2px solid rgba(76,201,240,0.15);
+    transition: box-shadow 0.2s;
+  }
+  .testimonial-card:hover { box-shadow: 0 10px 30px rgba(26,5,51,0.1); }
+  .stars { color: var(--yellow); font-size: 1rem; letter-spacing: 2px; margin-bottom: 14px; }
+  .testimonial-text {
+    font-size: 0.92rem; color: var(--text-mid); line-height: 1.75;
+    margin-bottom: 18px; font-style: italic;
+  }
+  .testimonial-author { display: flex; align-items: center; gap: 12px; }
+  .author-avatar {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--sky), #6C63FF);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; flex-shrink: 0;
+  }
+  .author-name { font-weight: 800; font-size: 0.88rem; color: var(--night); }
+  .author-role { font-size: 0.78rem; color: var(--text-mid); }
+
+  /* ── CTA FINAL ── */
+  .cta-section {
+    padding: 100px 60px;
+    text-align: center;
+    background: radial-gradient(ellipse at center, rgba(76,201,240,0.15) 0%, transparent 70%),
+                var(--lavender-bg);
+  }
+  .cta-section .section-title { color: var(--night); }
+  .cta-section .section-eyebrow { color: var(--coral); }
+  .cta-sub {
+    font-size: 1.1rem; color: var(--text-mid); max-width: 480px;
+    margin: 0 auto 36px; line-height: 1.75;
+  }
+  .cta-main-btn {
+    background: linear-gradient(135deg, var(--coral), #FF4757);
+    color: white; font-family: 'Nunito', sans-serif;
+    font-weight: 800; font-size: 1.2rem;
+    padding: 18px 48px; border-radius: 50px; border: none;
+    cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 8px 28px rgba(255,107,107,0.45);
+    display: inline-flex; align-items: center; gap: 12px;
+  }
+  .cta-main-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(255,107,107,0.55); }
+
+  .coming-soon-card {
+    opacity: 0.6;
+    position: relative;
+    overflow: hidden;
+  }
+  .coming-soon-card::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 8px,
+      rgba(255,255,255,0.03) 8px,
+      rgba(255,255,255,0.03) 16px
+    );
+    pointer-events: none;
+  }
+  .coming-soon-badge {
+    display: inline-block;
+    background: var(--yellow);
+    color: var(--night);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800; font-size: 0.78rem;
+    padding: 5px 14px; border-radius: 50px;
+    margin: 12px 0 14px; letter-spacing: 0.05em;
+  }
+  .coming-soon-text {
+    font-size: 0.86rem; color: rgba(255,255,255,0.6);
+    line-height: 1.65; margin-bottom: 22px;
+  }
+  .disabled-btn {
+    width: 100%; padding: 14px;
+    border-radius: 14px; border: 2px solid rgba(255,255,255,0.15);
+    background: transparent; color: rgba(255,255,255,0.35);
+    font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.95rem;
+    cursor: not-allowed; letter-spacing: 0.05em;
+  }
+  footer {
+    background: var(--night); padding: 40px 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .footer-logo {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.4rem; color: var(--white);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a {
+    color: rgba(255,255,255,0.5); text-decoration: none;
+    font-size: 0.85rem; font-weight: 600;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--sky); }
+  .footer-copy { color: rgba(255,255,255,0.3); font-size: 0.78rem; }
+
+  /* ── MODAL (GENERANDO) ── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 999;
+    background: rgba(26,5,51,0.7);
+    backdrop-filter: blur(6px);
+    display: none; align-items: center; justify-content: center;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-box {
+    background: var(--white); border-radius: 28px;
+    padding: 48px 40px; text-align: center;
+    max-width: 480px; width: 90%;
+    animation: popIn 0.4s cubic-bezier(0.23,1,0.32,1);
+  }
+  @keyframes popIn {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .loader-emoji { font-size: 4rem; animation: bounce 0.7s ease-in-out infinite alternate; }
+  @keyframes bounce { to { transform: translateY(-12px); } }
+  .loader-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.8rem; color: var(--night); margin: 18px 0 10px;
+  }
+  .loader-sub { color: var(--text-mid); font-size: 0.95rem; line-height: 1.7; }
+  .progress-bar-wrap {
+    width: 100%; height: 8px;
+    background: rgba(90,62,122,0.12);
+    border-radius: 50px; margin: 24px 0;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--sky), var(--coral));
+    border-radius: 50px;
+    animation: fillBar 4s ease forwards;
+  }
+  @keyframes fillBar { to { width: 90%; } }
+
+  /* Pack selector inside modal */
+  .pack-selector { margin-top: 24px; }
+  .pack-selector h4 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem; color: var(--night); margin-bottom: 14px;
+  }
+  .pack-options { display: flex; flex-direction: column; gap: 10px; }
+  .pack-option {
+    display: flex; align-items: center; gap: 12px;
+    border: 2px solid rgba(90,62,122,0.15);
+    border-radius: 14px; padding: 12px 16px;
+    cursor: pointer; transition: border-color 0.2s, background 0.2s;
+    text-align: left;
+  }
+  .pack-option:hover, .pack-option.selected {
+    border-color: var(--sky);
+    background: rgba(76,201,240,0.07);
+  }
+  .pack-icon { font-size: 1.5rem; flex-shrink: 0; }
+  .pack-label { font-weight: 700; font-size: 0.92rem; color: var(--night); }
+  .pack-pages { font-size: 0.78rem; color: var(--text-mid); }
+  .pack-price { margin-left: auto; font-family: 'Fredoka One', cursive; font-size: 1rem; color: var(--coral); }
+
+  /* Format toggle */
+  .format-toggle {
+    display: flex; gap: 10px; margin-top: 14px; justify-content: center;
+  }
+  .format-btn {
+    flex: 1; padding: 11px 16px;
+    border-radius: 12px; border: 2px solid rgba(90,62,122,0.2);
+    background: transparent; font-family: 'Nunito', sans-serif;
+    font-weight: 700; font-size: 0.88rem; color: var(--text-mid);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .format-btn.active {
+    background: var(--night); color: var(--white); border-color: var(--night);
+  }
+
+  .modal-confirm-btn {
+    width: 100%; padding: 15px;
+    background: linear-gradient(135deg, var(--coral), #FF4757);
+    color: white; font-family: 'Nunito', sans-serif;
+    font-weight: 800; font-size: 1.05rem;
+    border: none; border-radius: 14px;
+    cursor: pointer; margin-top: 20px;
+    box-shadow: 0 6px 18px rgba(255,107,107,0.4);
+    transition: transform 0.15s;
+    display: none;
+  }
+  .modal-confirm-btn:hover { transform: translateY(-2px); }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; padding: 90px 28px 50px; text-align: center; }
+    .hero-visual { order: -1; }
+    .hero-sub { margin: 0 auto 36px; }
+    .steps-grid, .lines-grid, .pricing-grid, .testimonials-grid { grid-template-columns: 1fr; }
+    .how-section, .lines-section, .pricing-section, .testimonials-section,
+    .cta-section { padding: 60px 28px; }
+    nav { padding: 14px 24px; }
+    .price-card.featured { transform: none; }
+    footer { flex-direction: column; align-items: flex-start; gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">
+    <span class="logo-star">✦</span> Mágica Trama
+  </div>
+  <button class="nav-cta" onclick="scrollToForm()">Crear mi libro</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-text">
+    <span class="eyebrow">✨ Libros de colorear personalizados con IA</span>
+    <h1 class="hero-headline">
+      Tu pequeño es el<br/>
+      <span class="brush-word">héroe</span> de su<br/>
+      propia historia
+    </h1>
+    <p class="hero-sub">
+      Sube su foto, cuéntanos sobre él o ella, y nuestra IA crea un libro de colorear único donde protagoniza cada página. Listo en minutos.
+    </p>
+    <div class="trust-badges">
+      <span class="badge"><span class="badge-icon">⚡</span> En menos de 5 min</span>
+      <span class="badge"><span class="badge-icon">🔒</span> Pago seguro</span>
+      <span class="badge"><span class="badge-icon">🎨</span> Arte de calidad premium</span>
+    </div>
+  </div>
+
+  <!-- FORM CARD -->
+  <div class="creation-form" id="creation-form">
+    <div class="form-title">
+      <span>🖍️</span> Empieza a crear gratis
+    </div>
+
+    <div class="field-group">
+      <label>Foto del protagonista</label>
+      <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+        <img class="upload-preview" id="preview-img" src="" alt="Vista previa"/>
+        <div class="upload-icon" id="upload-icon">📸</div>
+        <div class="upload-label">Arrastra una foto o haz clic aquí</div>
+        <div class="upload-sub">JPG, PNG — máx. 10 MB</div>
+      </div>
+      <input type="file" id="file-input" accept="image/*"/>
+    </div>
+
+    <div class="field-group">
+      <label>¿Cómo se llama?</label>
+      <input type="text" id="child-name" placeholder="Ej: Sofía, Mateo, Luna…" oninput="updateNamePreview(this.value)"/>
+    </div>
+
+    <div class="field-group">
+      <label>Cuéntanos su historia o temática favorita</label>
+      <textarea id="story-input" placeholder="Ej: Le encantan los dinosaurios, quiere ser astronauta, le da miedo el primer día de colegio…"></textarea>
+    </div>
+
+    <button class="generate-btn" onclick="startGeneration()">
+      <span class="btn-icon">✨</span>
+      Generar 2 páginas de muestra gratis
+    </button>
+
+    <div class="trust-badges">
+      <span class="badge"><span class="badge-icon">🛡️</span> Sin tarjeta requerida</span>
+      <span class="badge"><span class="badge-icon">🔐</span> Datos protegidos</span>
+    </div>
+  </div>
+
+  <!-- FLOATING BOOK -->
+  <div class="hero-visual" id="book-visual" style="display:none;">
+    <div style="position:relative;">
+      <div class="book-mockup">
+        <div class="book-spine"></div>
+        <div class="book-content">
+          <div class="book-title-text">La gran aventura de</div>
+          <div class="child-name-display" id="book-name-display">tu niño</div>
+          <div class="book-illustration">🦁</div>
+          <div style="font-family:'Fredoka One',cursive; font-size:0.85rem; color:var(--text-mid);">Libro de colorear</div>
+        </div>
+      </div>
+      <span class="stars-deco star-1">✦</span>
+      <span class="stars-deco star-2">★</span>
+      <span class="stars-deco star-3">✧</span>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section">
+  <div class="section-header">
+    <span class="section-eyebrow">el proceso</span>
+    <h2 class="section-title">Magia en tres pasos simples</h2>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card">
+      <span class="step-emoji">📸</span>
+      <span class="step-num">Paso 01</span>
+      <div class="step-name">Sube su foto</div>
+      <p class="step-desc">Una foto clara del rostro del niño es suficiente. Nuestra IA extrae sus rasgos únicos para convertirlos en arte lineal.</p>
+    </div>
+    <div class="step-card">
+      <span class="step-emoji">✍️</span>
+      <span class="step-num">Paso 02</span>
+      <div class="step-name">Cuéntanos su historia</div>
+      <p class="step-desc">¿Dinosaurios? ¿Espacio? ¿El primer día de colegio? Escríbenos cualquier temática y la IA construye el guión visual.</p>
+    </div>
+    <div class="step-card">
+      <span class="step-emoji">🎨</span>
+      <span class="step-num">Paso 03</span>
+      <div class="step-name">Recibe y colorea</div>
+      <p class="step-desc">En menos de 5 minutos recibes tu PDF en el correo, listo para imprimir en casa o en cualquier imprenta local.</p>
+    </div>
+  </div>
+</section>
+
+<!-- LÍNEAS NARRATIVAS -->
+<section class="lines-section">
+  <div class="section-header">
+    <span class="section-eyebrow" style="color:var(--coral);">colecciones</span>
+    <h2 class="section-title" style="color:var(--night);">Tres mundos para explorar</h2>
+  </div>
+  <div class="lines-grid">
+    <div class="line-card line-a">
+      <span class="line-icon">🚀</span>
+      <span class="line-tag">Línea A</span>
+      <div class="line-name">La Saga del Héroe</div>
+      <p class="line-desc">Tu hijo o hija en universos de fantasía, dinosaurios, el espacio o reinos mágicos. El destino favorito de los niños más aventureros.</p>
+    </div>
+    <div class="line-card line-b">
+      <span class="line-icon">🌱</span>
+      <span class="line-tag">Línea B</span>
+      <div class="line-name">Creciendo Juntos</div>
+      <p class="line-desc">Libros con enfoque psicopedagógico para acompañar hitos como el primer día de colegio, la llegada de un hermanito o superar el miedo a la oscuridad.</p>
+    </div>
+    <div class="line-card line-c">
+      <span class="line-icon">📖</span>
+      <span class="line-tag">Línea C</span>
+      <div class="line-name">Álbum de Vida</div>
+      <p class="line-desc">Tus fotos familiares transformadas en arte lineal minimalista y elegante. Un libro de colección que mezcla recuerdos reales con creatividad.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section">
+  <div class="section-header">
+    <span class="section-eyebrow">precios</span>
+    <h2 class="section-title">Elige la aventura perfecta</h2>
+  </div>
+  <div class="pricing-grid">
+    <!-- DIGITAL: activo -->
+    <div class="price-card featured" style="grid-column: 1 / -1; max-width: 380px; margin: 0 auto;">
+      <div class="popular-badge">✨ Disponible ahora</div>
+      <span class="price-icon">📄</span>
+      <div class="price-type">PDF Digital</div>
+      <span class="price-amount">$12.99</span>
+      <div class="price-sub">Descarga inmediata en tu correo</div>
+      <ul class="price-features">
+        <li><span class="check">✓</span> 10 páginas 100% personalizadas</li>
+        <li><span class="check">✓</span> Alta resolución — listo para imprimir</li>
+        <li><span class="check">✓</span> En tu correo en menos de 5 minutos</li>
+        <li><span class="check">✓</span> Imprime cuantas veces quieras</li>
+        <li><span class="check">✓</span> Pago seguro con PayPal</li>
+      </ul>
+      <button class="price-btn" onclick="scrollToForm()">Crear mi libro ahora</button>
+    </div>
+
+    <!-- FÍSICOS: próximamente -->
+    <div class="price-card coming-soon-card">
+      <span class="price-icon">📚</span>
+      <div class="price-type" style="color:var(--white);">Libro Físico Premium</div>
+      <div class="coming-soon-badge">🚀 Muy pronto</div>
+      <p class="coming-soon-text">Pronto podrás tener la Mágica Trama en tus manos: tapa blanda, papel premium y envío a casa.</p>
+      <button class="price-btn disabled-btn" disabled>Próximamente</button>
+    </div>
+    <div class="price-card coming-soon-card">
+      <span class="price-icon">👑</span>
+      <div class="price-type" style="color:var(--white);">Edición Legado</div>
+      <div class="coming-soon-badge">🚀 Muy pronto</div>
+      <p class="coming-soon-text">La experiencia completa: tapa dura, caja regalo, set de colores y laminado mate soft-touch.</p>
+      <button class="price-btn disabled-btn" disabled>Próximamente</button>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials-section">
+  <div class="section-header">
+    <span class="section-eyebrow" style="color:var(--sky);">familias que ya lo vivieron</span>
+    <h2 class="section-title" style="color:var(--night);">El "¡Soy yo!" que no olvidarás</h2>
+  </div>
+  <div class="testimonials-grid">
+    <div class="testimonial-card">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">"La cara que puso Valentina cuando vio el libro fue impagable. Se quedó mirando cada página diciendo '¡mamá, soy yo de princesa!'. Lloré de la emoción."</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">👩</div>
+        <div>
+          <div class="author-name">Camila R.</div>
+          <div class="author-role">Mamá de Valentina, 4 años</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">"Lo pedimos para que Sebastián procesara la llegada de su hermanito. Colorear esas páginas juntos fue una terapia para toda la familia. Un antes y un después."</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">👨</div>
+        <div>
+          <div class="author-name">Diego M.</div>
+          <div class="author-role">Papá de Sebastián, 5 años</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">"Perfecto para regalar. La Edición Legado llegó en una caja preciosa con los colores incluidos. Mi sobrino no quiso soltar el libro en todo el día de su cumpleaños."</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">👩‍🦱</div>
+        <div>
+          <div class="author-name">Lucía P.</div>
+          <div class="author-role">Tía de Tomás, 6 años</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-section">
+  <span class="section-eyebrow">regala un momento único</span>
+  <h2 class="section-title" style="color:var(--night); margin-bottom:16px;">
+    Su aventura empieza<br/>con una foto
+  </h2>
+  <p class="cta-sub">Prueba gratis ahora mismo. Sube la foto y recibe dos páginas de muestra en menos de 5 minutos — sin tarjeta.</p>
+  <button class="cta-main-btn" onclick="scrollToForm()">
+    ✨ Crear mi libro gratis
+  </button>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <span style="color:var(--yellow)">✦</span> Mágica Trama
+  </div>
+  <nav class="footer-links">
+    <a href="#">Cómo funciona</a>
+    <a href="#">Privacidad</a>
+    <a href="#">Términos</a>
+    <a href="#">Contacto</a>
+  </nav>
+  <div class="footer-copy">© 2025 Mágica Trama. Todos los derechos reservados.</div>
+</footer>
+
+<!-- MODAL GENERANDO -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-box">
+    <div class="loader-emoji" id="loader-emoji">🎨</div>
+    <div class="loader-title" id="loader-title">¡Dibujando la magia!</div>
+    <p class="loader-sub" id="loader-sub">Nuestra IA está convirtiendo a <strong id="modal-child-name">tu niño</strong> en el protagonista de su historia. Esto toma unos segundos…</p>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <!-- Pack selector (mostrado durante la espera) -->
+    <div class="pack-selector" id="pack-selector" style="display:none;">
+      <h4>Mientras esperamos, elige tu pack</h4>
+      <div class="pack-options">
+        <div class="pack-option selected" onclick="selectPack(this, '5 hojas', '$8.99')">
+          <span class="pack-icon">📄</span>
+          <div>
+            <div class="pack-label">Pack Aventura Corta</div>
+            <div class="pack-pages">5 páginas — PDF Digital</div>
+          </div>
+          <span class="pack-price">$8.99</span>
+        </div>
+        <div class="pack-option" onclick="selectPack(this, '10 hojas', '$12.99')">
+          <span class="pack-icon">📚</span>
+          <div>
+            <div class="pack-label">Pack Explorador</div>
+            <div class="pack-pages">10 páginas — PDF Digital</div>
+          </div>
+          <span class="pack-price">$12.99</span>
+        </div>
+        <div class="pack-option" onclick="selectPack(this, '20 hojas', '$19.99')">
+          <span class="pack-icon">🏆</span>
+          <div>
+            <div class="pack-label">Pack Gran Saga</div>
+            <div class="pack-pages">20 páginas — PDF Digital</div>
+          </div>
+          <span class="pack-price">$19.99</span>
+        </div>
+        <!-- Físico: próximamente -->
+        <div class="pack-option" style="opacity:0.45; cursor:not-allowed; position:relative;" title="Próximamente">
+          <span class="pack-icon">📦</span>
+          <div>
+            <div class="pack-label" style="color:#9B8AAD;">Libro Físico Impreso</div>
+            <div class="pack-pages">Tapa blanda, envío a casa</div>
+          </div>
+          <span style="font-family:'Fredoka One',cursive; font-size:0.78rem; color:var(--yellow); margin-left:auto; white-space:nowrap;">Muy pronto ✨</span>
+        </div>
+      </div>
+      <p style="font-size:0.75rem; color:var(--text-mid); text-align:center; margin-top:10px;">
+        📄 Todos los packs incluyen PDF en alta resolución — en tu correo en minutos
+      </p>
+      <button class="modal-confirm-btn" id="confirm-btn" onclick="confirmOrder()">
+        Ver mis 2 páginas de muestra →
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Live name preview in book
+  function updateNamePreview(val) {
+    const display = document.getElementById('book-name-display');
+    const bookVisual = document.getElementById('book-visual');
+    const formCard = document.getElementById('creation-form');
+    if (val.trim()) {
+      display.textContent = val;
+      if (window.innerWidth > 900) {
+        bookVisual.style.display = 'flex';
+        formCard.style.display = 'none';
+      }
+    } else {
+      display.textContent = 'tu niño';
+      if (window.innerWidth > 900) {
+        bookVisual.style.display = 'none';
+        formCard.style.display = 'block';
+      }
+    }
+  }
+
+  // ── File upload preview
+  document.getElementById('file-input').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      const preview = document.getElementById('preview-img');
+      preview.src = ev.target.result;
+      preview.style.display = 'block';
+      document.getElementById('upload-icon').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Drag and drop
+  const zone = document.getElementById('upload-zone');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const preview = document.getElementById('preview-img');
+        preview.src = ev.target.result;
+        preview.style.display = 'block';
+        document.getElementById('upload-icon').style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // ── Scroll to form
+  function scrollToForm() {
+    if (window.innerWidth <= 900) {
+      document.getElementById('creation-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      document.getElementById('hero').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Show form if hidden
+      document.getElementById('creation-form').style.display = 'block';
+      document.getElementById('book-visual').style.display = 'none';
+    }
+  }
+
+  // ── Generation flow
+  function startGeneration() {
+    const name = document.getElementById('child-name').value.trim() || 'tu niño';
+    document.getElementById('modal-child-name').textContent = name;
+    document.getElementById('modal').classList.add('active');
+
+    // Reset progress bar
+    const bar = document.getElementById('progress-bar');
+    bar.style.animation = 'none';
+    bar.offsetWidth; // reflow
+    bar.style.animation = '';
+
+    // Show pack selector after 2s (simulate AI working)
+    setTimeout(() => {
+      document.getElementById('pack-selector').style.display = 'block';
+      document.getElementById('loader-emoji').textContent = '✅';
+      document.getElementById('loader-title').textContent = '¡Muestras casi listas!';
+      document.getElementById('loader-sub').textContent = 'Elige tu pack mientras terminamos de generar tus 2 páginas de muestra.';
+      document.getElementById('confirm-btn').style.display = 'block';
+    }, 2800);
+  }
+
+  // ── Pack & format selection
+  function selectPack(el, label, price) {
+    document.querySelectorAll('.pack-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+  function selectFormat(el, label) {
+    document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // ── Confirm (simulates redirect to checkout)
+  function confirmOrder() {
+    const modal = document.getElementById('modal');
+    const box = modal.querySelector('.modal-box');
+    box.innerHTML = `
+      <div style="font-size:4rem;margin-bottom:16px;">🎉</div>
+      <div style="font-family:'Fredoka One',cursive;font-size:1.8rem;color:var(--night);margin-bottom:10px;">¡Aquí están!</div>
+      <p style="color:var(--text-mid);font-size:0.95rem;line-height:1.7;margin-bottom:24px;">
+        Tus 2 páginas de muestra están listas. Al completar la compra recibirás el libro completo en tu correo en minutos.
+      </p>
+      <div style="display:flex;gap:16px;justify-content:center;margin-bottom:20px;">
+        <div style="width:130px;height:170px;background:linear-gradient(135deg,#f0e0ff,#ddf0ff);border-radius:12px;border:3px dashed rgba(160,109,200,0.4);display:flex;align-items:center;justify-content:center;font-size:2.5rem;">🦁</div>
+        <div style="width:130px;height:170px;background:linear-gradient(135deg,#fff0dd,#ffeef5);border-radius:12px;border:3px dashed rgba(255,107,107,0.35);display:flex;align-items:center;justify-content:center;font-size:2.5rem;">🚀</div>
+      </div>
+      <div style="background:rgba(26,5,51,0.05);border-radius:12px;padding:10px 14px;font-size:0.78rem;color:var(--text-mid);margin-bottom:20px;">
+        🔒 Muestra protegida con marca de agua • No está disponible para descarga
+      </div>
+      <button onclick="document.getElementById('modal').classList.remove('active')" 
+        style="width:100%;padding:15px;background:linear-gradient(135deg,var(--coral),#FF4757);color:white;font-family:'Nunito',sans-serif;font-weight:800;font-size:1.05rem;border:none;border-radius:14px;cursor:pointer;box-shadow:0 6px 18px rgba(255,107,107,0.4);">
+        ✨ Comprar PDF completo — $12.99
+      </button>
+      <p style="margin-top:12px;font-size:0.78rem;color:var(--text-mid);">20% de descuento si compras en los próximos <strong style="color:var(--coral)">10 minutos</strong> ⏱️</p>
+    `;
+  }
+
+  // ── Prevent right-click on modal images
+  document.addEventListener('contextmenu', e => {
+    if (e.target.tagName === 'IMG') e.preventDefault();
+  });
+
+  // Close modal clicking overlay
+  document.getElementById('modal').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('active');
+  });
+</script>
+</body>
+</html>
