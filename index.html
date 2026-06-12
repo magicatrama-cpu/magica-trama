@@ -1014,13 +1014,12 @@
       document.getElementById('creation-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else {
       document.getElementById('hero').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      // Show form if hidden
       document.getElementById('creation-form').style.display = 'block';
       document.getElementById('book-visual').style.display = 'none';
     }
   }
 
-  // // ── Generation flow — real API call
+  // ── Generation flow — real API call
   let generatedImages = [];
 
   async function startGeneration() {
@@ -1078,7 +1077,6 @@
       setTimeout(() => document.getElementById('modal').classList.remove('active'), 3000);
     }
   }
-  }
 
   // ── Pack & format selection
   function selectPack(el, label, price) {
@@ -1090,32 +1088,59 @@
     el.classList.add('active');
   }
 
-  // ── Confirm (simulates redirect to checkout)
+  // ── Confirm — mostrar imágenes reales
   function confirmOrder() {
     const modal = document.getElementById('modal');
     const box = modal.querySelector('.modal-box');
+
+    const selectedPack = document.querySelector('.pack-option.selected');
+    const packPrice = selectedPack ? selectedPack.querySelector('.pack-price').textContent : '$12.99';
+    const packLabel = selectedPack ? selectedPack.querySelector('.pack-label').textContent : 'Pack Explorador';
+
+    const img1 = generatedImages[0]
+      ? `<div style="position:relative;width:130px;height:170px;">
+           <img src="${generatedImages[0]}" style="width:130px;height:170px;object-fit:cover;border-radius:12px;border:3px solid rgba(160,109,200,0.4);pointer-events:none;" draggable="false"/>
+           <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+             <div style="transform:rotate(-35deg);font-family:'Fredoka One',cursive;font-size:0.65rem;color:rgba(26,5,51,0.25);white-space:nowrap;line-height:2;">
+               MÁGICA TRAMA • MÁGICA TRAMA • MÁGICA TRAMA<br/>MÁGICA TRAMA • MÁGICA TRAMA • MÁGICA TRAMA
+             </div>
+           </div>
+         </div>`
+      : `<div style="width:130px;height:170px;background:linear-gradient(135deg,#f0e0ff,#ddf0ff);border-radius:12px;border:3px dashed rgba(160,109,200,0.4);display:flex;align-items:center;justify-content:center;font-size:2.5rem;">🦁</div>`;
+
+    const img2 = generatedImages[1]
+      ? `<div style="position:relative;width:130px;height:170px;">
+           <img src="${generatedImages[1]}" style="width:130px;height:170px;object-fit:cover;border-radius:12px;border:3px solid rgba(255,107,107,0.35);pointer-events:none;" draggable="false"/>
+           <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+             <div style="transform:rotate(-35deg);font-family:'Fredoka One',cursive;font-size:0.65rem;color:rgba(26,5,51,0.25);white-space:nowrap;line-height:2;">
+               MÁGICA TRAMA • MÁGICA TRAMA • MÁGICA TRAMA<br/>MÁGICA TRAMA • MÁGICA TRAMA • MÁGICA TRAMA
+             </div>
+           </div>
+         </div>`
+      : `<div style="width:130px;height:170px;background:linear-gradient(135deg,#fff0dd,#ffeef5);border-radius:12px;border:3px dashed rgba(255,107,107,0.35);display:flex;align-items:center;justify-content:center;font-size:2.5rem;">🚀</div>`;
+
     box.innerHTML = `
-      <div style="font-size:4rem;margin-bottom:16px;">🎉</div>
-      <div style="font-family:'Fredoka One',cursive;font-size:1.8rem;color:var(--night);margin-bottom:10px;">¡Aquí están!</div>
-      <p style="color:var(--text-mid);font-size:0.95rem;line-height:1.7;margin-bottom:24px;">
-        Tus 2 páginas de muestra están listas. Al completar la compra recibirás el libro completo en tu correo en minutos.
+      <div style="font-size:3.5rem;margin-bottom:12px;">🎉</div>
+      <div style="font-family:'Fredoka One',cursive;font-size:1.8rem;color:var(--night);margin-bottom:8px;">¡Aquí están!</div>
+      <p style="color:var(--text-mid);font-size:0.9rem;line-height:1.7;margin-bottom:20px;">
+        Tus 2 páginas de muestra. Compra el pack completo y recibirás todas las páginas en tu correo en minutos.
       </p>
-      <div style="display:flex;gap:16px;justify-content:center;margin-bottom:20px;">
-        <div style="width:130px;height:170px;background:linear-gradient(135deg,#f0e0ff,#ddf0ff);border-radius:12px;border:3px dashed rgba(160,109,200,0.4);display:flex;align-items:center;justify-content:center;font-size:2.5rem;">🦁</div>
-        <div style="width:130px;height:170px;background:linear-gradient(135deg,#fff0dd,#ffeef5);border-radius:12px;border:3px dashed rgba(255,107,107,0.35);display:flex;align-items:center;justify-content:center;font-size:2.5rem;">🚀</div>
+      <div style="display:flex;gap:16px;justify-content:center;margin-bottom:16px;">
+        ${img1}
+        ${img2}
       </div>
-      <div style="background:rgba(26,5,51,0.05);border-radius:12px;padding:10px 14px;font-size:0.78rem;color:var(--text-mid);margin-bottom:20px;">
-        🔒 Muestra protegida con marca de agua • No está disponible para descarga
+      <div style="background:rgba(26,5,51,0.05);border-radius:12px;padding:10px 14px;font-size:0.75rem;color:var(--text-mid);margin-bottom:20px;">
+        🔒 Muestra protegida con marca de agua • No disponible para descarga
       </div>
-      <button onclick="document.getElementById('modal').classList.remove('active')" 
+      <button onclick="document.getElementById('modal').classList.remove('active')"
         style="width:100%;padding:15px;background:linear-gradient(135deg,var(--coral),#FF4757);color:white;font-family:'Nunito',sans-serif;font-weight:800;font-size:1.05rem;border:none;border-radius:14px;cursor:pointer;box-shadow:0 6px 18px rgba(255,107,107,0.4);">
-        ✨ Comprar PDF completo — $12.99
+        ✨ Comprar ${packLabel} — ${packPrice}
       </button>
-      <p style="margin-top:12px;font-size:0.78rem;color:var(--text-mid);">20% de descuento si compras en los próximos <strong style="color:var(--coral)">10 minutos</strong> ⏱️</p>
+      <p style="margin-top:12px;font-size:0.78rem;color:var(--text-mid);">20% de descuento en los próximos <strong style="color:var(--coral)">10 minutos</strong> ⏱️</p>
     `;
   }
 
-  // ── Prevent right-click on modal images
+  // ── Prevent right-click on images
   document.addEventListener('contextmenu', e => {
     if (e.target.tagName === 'IMG') e.preventDefault();
   });
