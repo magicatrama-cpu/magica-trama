@@ -958,6 +958,9 @@
   // ── Live name preview in book
   function updateNamePreview(val) {
     const display = document.getElementById('book-name-display');
+    if (display) display.textContent = val || 'tu niño';
+  }
+    const display = document.getElementById('book-name-display');
     const bookVisual = document.getElementById('book-visual');
     const formCard = document.getElementById('creation-form');
     if (val.trim()) {
