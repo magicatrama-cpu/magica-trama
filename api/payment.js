@@ -8,20 +8,35 @@ module.exports = async function handler(req, res) {
   try {
     const { amount, packLabel } = req.body;
 
-    // Obtener token de acceso de PayPal
+    const clientId = process.env.PAYPAL_CLIENT_ID;
+    const secret = process.env.PAYPAL_SECRET;
+
+    console.log('ClientID length:', clientId ? clientId.length : 'MISSING');
+    console.log('Secret length:', secret ? secret.length : 'MISSING');
+
+    const credentials = Buffer.from(clientId + ':' + secret).toString('base64');
+
     const authResponse = await fetch('https://api-m.paypal.com/v1/oauth2/token', {
       method: 'POST',
       headers: {
-        'Authorization': 'Basic ' + Buffer.from(process.env.PAYPAL_CLIENT_ID + ':' + process.env.PAYPAL_SECRET).toString('base64'),
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'Authorization': 'Basic ' + credentials,
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json'
       },
       body: 'grant_type=client_credentials'
     });
 
-    const authData = await authResponse.json();
+    const authText = await authResponse.text();
+    console.log('PayPal auth response:', authText);
+
+    const authData = JSON.parse(authText);
+
+    if (!authResponse.ok) {
+      return res.status(500).json({ error: 'Auth failed', details: authData });
+    }
+
     const accessToken = authData.access_token;
 
-    // Crear orden de pago
     const orderResponse = await fetch('https://api-m.paypal.com/v2/checkout/orders', {
       method: 'POST',
       headers: {
@@ -39,7 +54,6 @@ module.exports = async function handler(req, res) {
         }],
         application_context: {
           brand_name: 'Magica Trama',
-          landing_page: 'NO_PREFERENCE',
           user_action: 'PAY_NOW',
           return_url: 'https://magica-trama.vercel.app/success',
           cancel_url: 'https://magica-trama.vercel.app'
@@ -50,7 +64,7 @@ module.exports = async function handler(req, res) {
     const orderData = await orderResponse.json();
 
     if (!orderResponse.ok) {
-      console.error('PayPal error:', JSON.stringify(orderData));
+      console.error('Order error:', JSON.stringify(orderData));
       return res.status(500).json({ error: 'Error creating order', details: orderData });
     }
 
@@ -63,6 +77,6 @@ module.exports = async function handler(req, res) {
 
   } catch (error) {
     console.error('Payment error:', error.message);
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error', message: error.message });
   }
 }
