@@ -955,74 +955,58 @@
 </div>
 
 <script>
-  // ── Live name preview in book
   function updateNamePreview(val) {
     const display = document.getElementById('book-name-display');
-    if (display) display.textContent = val || 'tu niño';
-  }
-    const display = document.getElementById('book-name-display');
-    const bookVisual = document.getElementById('book-visual');
-    const formCard = document.getElementById('creation-form');
-    if (val.trim()) {
-      display.textContent = val;
-      if (window.innerWidth > 900) {
-        bookVisual.style.display = 'flex';
-        formCard.style.display = 'none';
-      }
-    } else {
-      display.textContent = 'tu niño';
-      if (window.innerWidth > 900) {
-        bookVisual.style.display = 'none';
-        formCard.style.display = 'block';
-      }
-    }
+    if (display) display.textContent = val || 'tu nino';
   }
 
-  // ── File upload preview
-  document.getElementById('file-input').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(ev) {
-      const preview = document.getElementById('preview-img');
-      preview.src = ev.target.result;
-      preview.style.display = 'block';
-      document.getElementById('upload-icon').style.display = 'none';
-    };
-    reader.readAsDataURL(file);
-  });
+  document.addEventListener('DOMContentLoaded', function() {
 
-  // Drag and drop
-  const zone = document.getElementById('upload-zone');
-  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
-  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-  zone.addEventListener('drop', e => {
-    e.preventDefault(); zone.classList.remove('drag-over');
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
+    document.getElementById('file-input').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
       const reader = new FileReader();
-      reader.onload = ev => {
+      reader.onload = function(ev) {
         const preview = document.getElementById('preview-img');
         preview.src = ev.target.result;
         preview.style.display = 'block';
         document.getElementById('upload-icon').style.display = 'none';
       };
       reader.readAsDataURL(file);
-    }
+    });
+
+    const zone = document.getElementById('upload-zone');
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault(); zone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const preview = document.getElementById('preview-img');
+          preview.src = ev.target.result;
+          preview.style.display = 'block';
+          document.getElementById('upload-icon').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document.getElementById('modal').addEventListener('click', function(e) {
+      if (e.target === this) this.classList.remove('active');
+    });
+
+    document.addEventListener('contextmenu', e => {
+      if (e.target.tagName === 'IMG') e.preventDefault();
+    });
+
   });
 
-  // ── Scroll to form
   function scrollToForm() {
-    if (window.innerWidth <= 900) {
-      document.getElementById('creation-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else {
-      document.getElementById('hero').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      document.getElementById('creation-form').style.display = 'block';
-      document.getElementById('book-visual').style.display = 'none';
-    }
+    document.getElementById('creation-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  // ── Generation flow — real API call
   let generatedImages = [];
 
   async function startGeneration() {
@@ -1030,17 +1014,17 @@
     const story = document.getElementById('story-input').value.trim();
     const fileInput = document.getElementById('file-input');
 
-    if (!name) { alert('¡Escribe el nombre! 😊'); return; }
-    if (!story) { alert('¡Cuéntanos la temática! ✍️'); return; }
-    if (!fileInput.files[0]) { alert('¡Sube una foto! 📸'); return; }
+    if (!name) { alert('Escribe el nombre del nino o nina'); return; }
+    if (!story) { alert('Cuentanos la tematica o historia'); return; }
+    if (!fileInput.files[0]) { alert('Sube una foto del protagonista'); return; }
 
     document.getElementById('modal-child-name').textContent = name;
     document.getElementById('modal').classList.add('active');
     document.getElementById('pack-selector').style.display = 'none';
     document.getElementById('confirm-btn').style.display = 'none';
     document.getElementById('loader-emoji').textContent = '🎨';
-    document.getElementById('loader-title').textContent = '¡Dibujando la magia!';
-    document.getElementById('loader-sub').innerHTML = `Nuestra IA está convirtiendo a <strong>${name}</strong> en el protagonista de su historia…`;
+    document.getElementById('loader-title').textContent = 'Dibujando la magia!';
+    document.getElementById('loader-sub').textContent = 'Nuestra IA esta convirtiendo a ' + name + ' en el protagonista de su historia...';
 
     const bar = document.getElementById('progress-bar');
     bar.style.animation = 'none';
@@ -1068,30 +1052,24 @@
 
       document.getElementById('pack-selector').style.display = 'block';
       document.getElementById('loader-emoji').textContent = '✅';
-      document.getElementById('loader-title').textContent = '¡Muestras listas!';
-      document.getElementById('loader-sub').textContent = 'Elige tu pack y ve tus 2 páginas de muestra.';
+      document.getElementById('loader-title').textContent = 'Muestras listas!';
+      document.getElementById('loader-sub').textContent = 'Elige tu pack y ve tus 2 paginas de muestra.';
       document.getElementById('confirm-btn').style.display = 'block';
 
     } catch (error) {
       console.error(error);
       document.getElementById('loader-emoji').textContent = '😔';
-      document.getElementById('loader-title').textContent = 'Algo salió mal';
+      document.getElementById('loader-title').textContent = 'Algo salio mal';
       document.getElementById('loader-sub').textContent = 'Hubo un error. Por favor intenta de nuevo.';
       setTimeout(() => document.getElementById('modal').classList.remove('active'), 3000);
     }
   }
 
-  // ── Pack & format selection
   function selectPack(el, label, price) {
     document.querySelectorAll('.pack-option').forEach(o => o.classList.remove('selected'));
     el.classList.add('selected');
   }
-  function selectFormat(el, label) {
-    document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-  }
 
-  // ── Confirm — mostrar imágenes reales
   function confirmOrder() {
     const modal = document.getElementById('modal');
     const box = modal.querySelector('.modal-box');
@@ -1100,58 +1078,28 @@
     const packPrice = selectedPack ? selectedPack.querySelector('.pack-price').textContent : '$12.99';
     const packLabel = selectedPack ? selectedPack.querySelector('.pack-label').textContent : 'Pack Explorador';
 
-    const img1 = generatedImages[0]
-      ? `<div style="position:relative;width:130px;height:170px;">
-           <img src="${generatedImages[0]}" style="width:130px;height:170px;object-fit:cover;border-radius:12px;border:3px solid rgba(160,109,200,0.4);pointer-events:none;" draggable="false"/>
-           <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
-             <div style="transform:rotate(-35deg);font-family:'Fredoka One',cursive;font-size:0.65rem;color:rgba(26,5,51,0.25);white-space:nowrap;line-height:2;">
-               MÁGICA TRAMA • MÁGICA TRAMA • MÁGICA TRAMA<br/>MÁGICA TRAMA • MÁGICA TRAMA • MÁGICA TRAMA
-             </div>
-           </div>
-         </div>`
-      : `<div style="width:130px;height:170px;background:linear-gradient(135deg,#f0e0ff,#ddf0ff);border-radius:12px;border:3px dashed rgba(160,109,200,0.4);display:flex;align-items:center;justify-content:center;font-size:2.5rem;">🦁</div>`;
+    const makeImg = (src, color1, color2, emoji) => src
+      ? '<div style="position:relative;width:130px;height:170px;">'
+        + '<img src="' + src + '" style="width:130px;height:170px;object-fit:cover;border-radius:12px;pointer-events:none;" draggable="false"/>'
+        + '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;overflow:hidden;border-radius:12px;">'
+        + '<div style="transform:rotate(-35deg);font-size:0.6rem;color:rgba(26,5,51,0.2);white-space:nowrap;line-height:2.2;letter-spacing:0.05em;font-weight:700;">'
+        + 'MAGICA TRAMA • MAGICA TRAMA • MAGICA TRAMA<br>MAGICA TRAMA • MAGICA TRAMA • MAGICA TRAMA<br>MAGICA TRAMA • MAGICA TRAMA • MAGICA TRAMA'
+        + '</div></div></div>'
+      : '<div style="width:130px;height:170px;background:linear-gradient(135deg,' + color1 + ',' + color2 + ');border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;">' + emoji + '</div>';
 
-    const img2 = generatedImages[1]
-      ? `<div style="position:relative;width:130px;height:170px;">
-           <img src="${generatedImages[1]}" style="width:130px;height:170px;object-fit:cover;border-radius:12px;border:3px solid rgba(255,107,107,0.35);pointer-events:none;" draggable="false"/>
-           <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
-             <div style="transform:rotate(-35deg);font-family:'Fredoka One',cursive;font-size:0.65rem;color:rgba(26,5,51,0.25);white-space:nowrap;line-height:2;">
-               MÁGICA TRAMA • MÁGICA TRAMA • MÁGICA TRAMA<br/>MÁGICA TRAMA • MÁGICA TRAMA • MÁGICA TRAMA
-             </div>
-           </div>
-         </div>`
-      : `<div style="width:130px;height:170px;background:linear-gradient(135deg,#fff0dd,#ffeef5);border-radius:12px;border:3px dashed rgba(255,107,107,0.35);display:flex;align-items:center;justify-content:center;font-size:2.5rem;">🚀</div>`;
-
-    box.innerHTML = `
-      <div style="font-size:3.5rem;margin-bottom:12px;">🎉</div>
-      <div style="font-family:'Fredoka One',cursive;font-size:1.8rem;color:var(--night);margin-bottom:8px;">¡Aquí están!</div>
-      <p style="color:var(--text-mid);font-size:0.9rem;line-height:1.7;margin-bottom:20px;">
-        Tus 2 páginas de muestra. Compra el pack completo y recibirás todas las páginas en tu correo en minutos.
-      </p>
-      <div style="display:flex;gap:16px;justify-content:center;margin-bottom:16px;">
-        ${img1}
-        ${img2}
-      </div>
-      <div style="background:rgba(26,5,51,0.05);border-radius:12px;padding:10px 14px;font-size:0.75rem;color:var(--text-mid);margin-bottom:20px;">
-        🔒 Muestra protegida con marca de agua • No disponible para descarga
-      </div>
-      <button onclick="document.getElementById('modal').classList.remove('active')"
-        style="width:100%;padding:15px;background:linear-gradient(135deg,var(--coral),#FF4757);color:white;font-family:'Nunito',sans-serif;font-weight:800;font-size:1.05rem;border:none;border-radius:14px;cursor:pointer;box-shadow:0 6px 18px rgba(255,107,107,0.4);">
-        ✨ Comprar ${packLabel} — ${packPrice}
-      </button>
-      <p style="margin-top:12px;font-size:0.78rem;color:var(--text-mid);">20% de descuento en los próximos <strong style="color:var(--coral)">10 minutos</strong> ⏱️</p>
-    `;
+    box.innerHTML = '<div style="font-size:3.5rem;margin-bottom:12px;">🎉</div>'
+      + '<div style="font-family:Fredoka One,cursive;font-size:1.8rem;color:#1A0533;margin-bottom:8px;">Aqui estan!</div>'
+      + '<p style="color:#5A3E7A;font-size:0.9rem;line-height:1.7;margin-bottom:20px;">Tus 2 paginas de muestra. Compra el pack completo y recibiras todas las paginas en tu correo en minutos.</p>'
+      + '<div style="display:flex;gap:16px;justify-content:center;margin-bottom:16px;">'
+      + makeImg(generatedImages[0], '#f0e0ff', '#ddf0ff', '🦁')
+      + makeImg(generatedImages[1], '#fff0dd', '#ffeef5', '🚀')
+      + '</div>'
+      + '<div style="background:rgba(26,5,51,0.05);border-radius:12px;padding:10px 14px;font-size:0.75rem;color:#5A3E7A;margin-bottom:20px;">Muestra protegida con marca de agua</div>'
+      + '<button onclick="document.getElementById(\'modal\').classList.remove(\'active\')" style="width:100%;padding:15px;background:linear-gradient(135deg,#FF6B6B,#FF4757);color:white;font-family:Nunito,sans-serif;font-weight:800;font-size:1.05rem;border:none;border-radius:14px;cursor:pointer;">'
+      + 'Comprar ' + packLabel + ' — ' + packPrice
+      + '</button>'
+      + '<p style="margin-top:12px;font-size:0.78rem;color:#5A3E7A;">20% de descuento en los proximos <strong style="color:#FF6B6B">10 minutos</strong></p>';
   }
-
-  // ── Prevent right-click on images
-  document.addEventListener('contextmenu', e => {
-    if (e.target.tagName === 'IMG') e.preventDefault();
-  });
-
-  // Close modal clicking overlay
-  document.getElementById('modal').addEventListener('click', function(e) {
-    if (e.target === this) this.classList.remove('active');
-  });
 </script>
 
 
