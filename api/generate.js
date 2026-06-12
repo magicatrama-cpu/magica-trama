@@ -1,8 +1,4 @@
-export const config = {
-  api: { bodyParser: { sizeLimit: '10mb' } }
-};
-
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -10,9 +6,9 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { childName, story, imageBase64 } = req.body;
+    const { childName, story } = req.body;
 
-    const prompt = `A child named ${childName}, coloring book page style, clean bold black outlines only, pure white background, high contrast, wide spaces for coloring, no shading, no gradients, no color fills, vector line art, professional children's illustration, ${story}, single page, centered composition`;
+    const prompt = `Coloring book page for children, the main character is a child named ${childName}, clean bold black outlines only, pure white background, no shading, no gradients, no color fills, wide spaces for coloring, vector line art, professional children's illustration, ${story}, single page centered composition`;
 
     const response = await fetch('https://fal.run/fal-ai/flux/schnell', {
       method: 'POST',
@@ -33,15 +29,4 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       console.error('Fal.ai error:', data);
-      return res.status(500).json({ error: 'Error generando imágenes', details: data });
-    }
-
-    return res.status(200).json({
-      images: data.images.map(img => img.url)
-    });
-
-  } catch (error) {
-    console.error('Server error:', error);
-    return res.status(500).json({ error: 'Error interno del servidor' });
-  }
-}
+      return res.status(500).json({ error: 'Error
