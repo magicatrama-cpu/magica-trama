@@ -1020,26 +1020,64 @@
     }
   }
 
-  // ── Generation flow
-  function startGeneration() {
-    const name = document.getElementById('child-name').value.trim() || 'tu niño';
+  // // ── Generation flow — real API call
+  let generatedImages = [];
+
+  async function startGeneration() {
+    const name = document.getElementById('child-name').value.trim();
+    const story = document.getElementById('story-input').value.trim();
+    const fileInput = document.getElementById('file-input');
+
+    if (!name) { alert('¡Escribe el nombre! 😊'); return; }
+    if (!story) { alert('¡Cuéntanos la temática! ✍️'); return; }
+    if (!fileInput.files[0]) { alert('¡Sube una foto! 📸'); return; }
+
     document.getElementById('modal-child-name').textContent = name;
     document.getElementById('modal').classList.add('active');
+    document.getElementById('pack-selector').style.display = 'none';
+    document.getElementById('confirm-btn').style.display = 'none';
+    document.getElementById('loader-emoji').textContent = '🎨';
+    document.getElementById('loader-title').textContent = '¡Dibujando la magia!';
+    document.getElementById('loader-sub').innerHTML = `Nuestra IA está convirtiendo a <strong>${name}</strong> en el protagonista de su historia…`;
 
-    // Reset progress bar
     const bar = document.getElementById('progress-bar');
     bar.style.animation = 'none';
-    bar.offsetWidth; // reflow
+    bar.offsetWidth;
     bar.style.animation = '';
 
-    // Show pack selector after 2s (simulate AI working)
-    setTimeout(() => {
+    const file = fileInput.files[0];
+    const imageBase64 = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result.split(',')[1]);
+      reader.readAsDataURL(file);
+    });
+
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ childName: name, story: story, imageBase64: imageBase64 })
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Error del servidor');
+
+      generatedImages = data.images;
+
       document.getElementById('pack-selector').style.display = 'block';
       document.getElementById('loader-emoji').textContent = '✅';
-      document.getElementById('loader-title').textContent = '¡Muestras casi listas!';
-      document.getElementById('loader-sub').textContent = 'Elige tu pack mientras terminamos de generar tus 2 páginas de muestra.';
+      document.getElementById('loader-title').textContent = '¡Muestras listas!';
+      document.getElementById('loader-sub').textContent = 'Elige tu pack y ve tus 2 páginas de muestra.';
       document.getElementById('confirm-btn').style.display = 'block';
-    }, 2800);
+
+    } catch (error) {
+      console.error(error);
+      document.getElementById('loader-emoji').textContent = '😔';
+      document.getElementById('loader-title').textContent = 'Algo salió mal';
+      document.getElementById('loader-sub').textContent = 'Hubo un error. Por favor intenta de nuevo.';
+      setTimeout(() => document.getElementById('modal').classList.remove('active'), 3000);
+    }
+  }
   }
 
   // ── Pack & format selection
