@@ -111,6 +111,19 @@ module.exports = async function handler(req, res) {
 
     console.log('Notification sent to business');
 
+    // Disparar generacion del PDF en background
+    fetch('https://magica-trama.vercel.app/api/generate-pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        childName: childName,
+        story: story,
+        packLabel: packLabel,
+        customerEmail: customerEmail,
+        customerName: customerName
+      })
+    }).catch(err => console.error('PDF generation error:', err.message));
+
     return res.status(200).json({ success: true });
 
   } catch (error) {
