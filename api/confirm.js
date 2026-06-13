@@ -49,6 +49,10 @@ module.exports = async function handler(req, res) {
       finalStatus = captureData.status;
     }
 
+    if (orderData.status === 'COMPLETED') {
+      finalStatus = 'COMPLETED';
+    }
+
     if (finalStatus !== 'COMPLETED') {
       return res.status(400).json({ error: 'Payment not completed', status: finalStatus });
     }
