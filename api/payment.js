@@ -55,7 +55,7 @@ module.exports = async function handler(req, res) {
         application_context: {
           brand_name: 'Magica Trama',
           user_action: 'PAY_NOW',
-          return_url: 'https://magica-trama.vercel.app/success',
+         return_url: 'https://magica-trama.vercel.app/api/success',
           cancel_url: 'https://magica-trama.vercel.app'
         }
       })
