@@ -17,36 +17,45 @@ module.exports = async function handler(req, res) {
 
     console.log('Generating', numPages, 'pages for', childName);
 
-    const baseStory = story || 'magical adventure';
-    const variations = [
-      'beginning of the adventure, ' + baseStory,
-      'discovering something amazing, ' + baseStory,
-      'meeting a new magical friend, ' + baseStory,
-      'facing a fun challenge, ' + baseStory,
-      'finding a hidden treasure, ' + baseStory,
-      'celebrating with friends, ' + baseStory,
-      'exploring a new magical place, ' + baseStory,
-      'learning a new superpower, ' + baseStory,
-      'helping someone in need, ' + baseStory,
-      'the most epic moment of the story, ' + baseStory,
-      'flying high above the clouds, ' + baseStory,
-      'discovering a secret door, ' + baseStory,
-      'making new animal friends, ' + baseStory,
-      'finding the magic key, ' + baseStory,
-      'the grand finale of the adventure, ' + baseStory,
-      'returning home as a hero, ' + baseStory,
-      'sharing the adventure with family, ' + baseStory,
-      'the magical reward, ' + baseStory,
-      'a surprise twist in the story, ' + baseStory,
-      'happily ever after, ' + baseStory
-    ];
+    // Paso 1: Usar Claude para generar escenas unicas basadas en la historia del cliente
+    const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: 'Create ' + numPages + ' unique and creative scene descriptions for a children\'s coloring book. The main character is a child named ' + childName + '. The story theme is: ' + story + '. Each scene should be a specific moment in the story, completely based on the theme provided. Return ONLY a JSON array of strings, no other text. Example format: ["scene 1 description", "scene 2 description"]. Make each scene vivid, fun and child-appropriate. Each description should be 1-2 sentences maximum.'
+        }]
+      })
+    });
 
+    const claudeData = await claudeResponse.json();
+    console.log('Claude response:', claudeData.content[0].text);
+
+    let scenes = [];
+    try {
+      const cleanText = claudeData.content[0].text.replace(/```json|```/g, '').trim();
+      scenes = JSON.parse(cleanText);
+    } catch (e) {
+      console.error('Error parsing Claude response:', e.message);
+      // Fallback: usar la historia directamente
+      scenes = Array.from({ length: numPages }, (_, i) => 'Scene ' + (i + 1) + ' of the story: ' + story);
+    }
+
+    console.log('Scenes generated:', scenes.length);
+
+    // Paso 2: Generar imagenes con Fal.ai para cada escena
     const images = [];
-    const pagesToGenerate = Math.min(numPages, variations.length);
 
-    for (let i = 0; i < pagesToGenerate; i++) {
+    for (let i = 0; i < scenes.length; i++) {
       try {
-        const prompt = 'Coloring book page for children, the main character is a child named ' + childName + ', ' + variations[i] + ', clean bold black outlines only, pure white background, no shading, no gradients, no color fills, wide spaces for coloring, vector line art, professional children illustration, single page centered composition';
+        const prompt = 'Children coloring book page, ' + childName + ' as the main character, ' + scenes[i] + ', STRICT: clean bold black outlines ONLY, pure white background, absolutely NO color fills, NO shading, NO gradients, NO grey tones, black and white line art only, wide empty spaces for coloring, vector illustration style, professional children book illustration';
 
         const response = await fetch('https://fal.run/fal-ai/flux/schnell', {
           method: 'POST',
@@ -75,7 +84,7 @@ module.exports = async function handler(req, res) {
 
     console.log('Total images generated:', images.length);
 
-    // Crear PDF
+    // Paso 3: Crear PDF
     const doc = new PDFDocument({ size: 'A4', margin: 0, autoFirstPage: false });
     const buffers = [];
     doc.on('data', chunk => buffers.push(chunk));
@@ -106,13 +115,12 @@ module.exports = async function handler(req, res) {
     }
 
     doc.end();
-
     await new Promise((resolve) => doc.on('end', resolve));
 
     const pdfBuffer = Buffer.concat(buffers);
     console.log('PDF generated, size:', pdfBuffer.length);
 
-    // Enviar email con PDF
+    // Paso 4: Enviar email con PDF
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -149,7 +157,6 @@ module.exports = async function handler(req, res) {
     });
 
     console.log('PDF email sent to:', customerEmail);
-
     return res.status(200).json({ success: true, pages: images.length });
 
   } catch (error) {
