@@ -12,41 +12,41 @@ module.exports = async function handler(req, res) {
   try {
     const { childName, story, packLabel, customerEmail, customerName } = req.body;
 
-    const numPages = packLabel && packLabel.includes('Gran Saga') ? 20 
+    const numPages = packLabel && packLabel.includes('Gran Saga') ? 20
                    : packLabel && packLabel.includes('Explorador') ? 10 : 5;
 
     console.log('Generating', numPages, 'pages for', childName);
 
-    // Generar imagenes con Fal.ai
-    const scenarios = [
-      'exploring a magical forest with fairy creatures and glowing mushrooms',
-      'riding a friendly dragon through clouds and rainbows',
-      'discovering a treasure chest on a pirate ship at sea',
-      'playing with friendly dinosaurs in a prehistoric jungle',
-      'flying a rocket ship through space with planets and stars',
-      'swimming with friendly colorful fish and sea creatures underwater',
-      'building a magical castle with wizard helpers and fairy towers',
-      'racing on a rainbow with unicorns through the sky',
-      'going on safari with friendly giraffes lions and elephants',
-      'cooking magical potions in a fantasy kitchen with talking animals',
-      'climbing the highest mountain with penguin and bear friends',
-      'sailing on a boat through magical glowing waters at night',
-      'dancing with forest animals in a sunny clearing with flowers',
-      'exploring ancient ruins with a treasure map and animal companions',
-      'playing music that makes giant flowers bloom and butterflies appear',
-      'teaching little baby dragons to fly over a fantasy kingdom',
-      'finding a secret garden full of talking flowers and tiny fairies',
-      'meeting friendly giants who live in a land of giant mushrooms',
-      'surfing giant waves with dolphin and whale friends',
-      'celebrating a birthday party with all magical animal friends'
+    const baseStory = story || 'magical adventure';
+    const variations = [
+      'beginning of the adventure, ' + baseStory,
+      'discovering something amazing, ' + baseStory,
+      'meeting a new magical friend, ' + baseStory,
+      'facing a fun challenge, ' + baseStory,
+      'finding a hidden treasure, ' + baseStory,
+      'celebrating with friends, ' + baseStory,
+      'exploring a new magical place, ' + baseStory,
+      'learning a new superpower, ' + baseStory,
+      'helping someone in need, ' + baseStory,
+      'the most epic moment of the story, ' + baseStory,
+      'flying high above the clouds, ' + baseStory,
+      'discovering a secret door, ' + baseStory,
+      'making new animal friends, ' + baseStory,
+      'finding the magic key, ' + baseStory,
+      'the grand finale of the adventure, ' + baseStory,
+      'returning home as a hero, ' + baseStory,
+      'sharing the adventure with family, ' + baseStory,
+      'the magical reward, ' + baseStory,
+      'a surprise twist in the story, ' + baseStory,
+      'happily ever after, ' + baseStory
     ];
 
     const images = [];
-    const pagesToGenerate = Math.min(numPages, scenarios.length);
+    const pagesToGenerate = Math.min(numPages, variations.length);
 
     for (let i = 0; i < pagesToGenerate; i++) {
       try {
-        const prompt = 'Coloring book page for children, the main character is a child named ' + childName + ', ' + scenarios[i] + ', clean bold black outlines only, pure white background, no shading, no gradients, no color fills, wide spaces for coloring, vector line art, professional children illustration, single page centered composition, ' + story;
+        const prompt = 'Coloring book page for children, the main character is a child named ' + childName + ', ' + variations[i] + ', clean bold black outlines only, pure white background, no shading, no gradients, no color fills, wide spaces for coloring, vector line art, professional children illustration, single page centered composition';
 
         const response = await fetch('https://fal.run/fal-ai/flux/schnell', {
           method: 'POST',
@@ -76,82 +76,43 @@ module.exports = async function handler(req, res) {
     console.log('Total images generated:', images.length);
 
     // Crear PDF
-    const doc = new PDFDocument({ size: 'A4', margin: 40 });
+    const doc = new PDFDocument({ size: 'A4', margin: 0, autoFirstPage: false });
     const buffers = [];
-
     doc.on('data', chunk => buffers.push(chunk));
 
-    await new Promise((resolve, reject) => {
-      doc.on('end', resolve);
-      doc.on('error', reject);
+    // Portada
+    doc.addPage();
+    doc.rect(0, 0, doc.page.width, doc.page.height).fill('#F7E8FF');
+    doc.fill('#1A0533').font('Helvetica-Bold').fontSize(36).text('Magica Trama', 0, 200, { align: 'center' });
+    doc.fill('#FF6B6B').fontSize(24).text('La aventura de ' + childName, 0, 260, { align: 'center' });
+    doc.fill('#5A3E7A').fontSize(14).text('Libro de colorear personalizado', 0, 310, { align: 'center' });
+    doc.fill('#9B8AAD').fontSize(11).text('magicatrama@gmail.com', 0, 700, { align: 'center' });
 
-      // Portada
-      doc.rect(0, 0, doc.page.width, doc.page.height).fill('#F7E8FF');
-      doc.fill('#1A0533')
-         .font('Helvetica-Bold')
-         .fontSize(36)
-         .text('Magica Trama', 0, 200, { align: 'center' });
-      doc.fill('#FF6B6B')
-         .fontSize(24)
-         .text('La aventura de ' + childName, 0, 260, { align: 'center' });
-      doc.fill('#5A3E7A')
-         .fontSize(14)
-         .text('Libro de colorear personalizado', 0, 310, { align: 'center' });
-      doc.fill('#9B8AAD')
-         .fontSize(11)
-         .text('magicatrama@gmail.com', 0, 700, { align: 'center' });
+    // Paginas con imagenes
+    for (let i = 0; i < images.length; i++) {
+      doc.addPage();
+      try {
+        const imgResponse = await axios.get(images[i], { responseType: 'arraybuffer' });
+        const imgBuffer = Buffer.from(imgResponse.data);
+        doc.image(imgBuffer, 40, 40, {
+          width: doc.page.width - 80,
+          height: doc.page.height - 80
+        });
+      } catch (err) {
+        console.error('Error adding image', i, err.message);
+        doc.fill('#9B8AAD').fontSize(14).text('Pagina ' + (i + 1), 0, 400, { align: 'center' });
+      }
+      doc.fill('#CCCCCC').fontSize(8).text('magicatrama.com  •  Pagina ' + (i + 1), 0, doc.page.height - 20, { align: 'center' });
+    }
 
-      // Paginas con imagenes
-const addPages = async () => {
-        for (let i = 0; i < images.length; i++) {
-          doc.addPage();
+    doc.end();
 
-          try {
-            const imgResponse = await axios.get(images[i], { responseType: 'arraybuffer' });
-            const imgBuffer = Buffer.from(imgResponse.data);
-            doc.image(imgBuffer, 40, 40, { 
-              width: doc.page.width - 80,
-              height: doc.page.height - 80,
-              align: 'center',
-              valign: 'center'
-            });
-          } catch (err) {
-            console.error('Error adding image', i, err.message);
-            doc.fill('#9B8AAD').fontSize(14).text('Pagina ' + (i + 1), 40, 400, { align: 'center' });
-          }
-
-          doc.fill('#CCCCCC').fontSize(8).text('magicatrama.com  •  Pagina ' + (i + 1), 0, doc.page.height - 30, { align: 'center' });
-        }
-
-        doc.end();
-      };
-
-          try {
-            const imgResponse = await axios.get(images[i], { responseType: 'arraybuffer' });
-            const imgBuffer = Buffer.from(imgResponse.data);
-            doc.image(imgBuffer, 40, 60, { 
-              width: doc.page.width - 80,
-              height: doc.page.height - 140
-            });
-          } catch (err) {
-            console.error('Error adding image', i, err.message);
-            doc.fill('#9B8AAD').fontSize(14).text('Pagina ' + (i + 1), 40, 400, { align: 'center' });
-          }
-
-          // Numero de pagina y marca de agua discreta
-          doc.fill('#CCCCCC').fontSize(8).text('magicatrama.com  •  Pagina ' + (i + 1), 0, doc.page.height - 30, { align: 'center' });
-        }
-
-        doc.end();
-      };
-
-      addPages().catch(reject);
-    });
+    await new Promise((resolve) => doc.on('end', resolve));
 
     const pdfBuffer = Buffer.concat(buffers);
     console.log('PDF generated, size:', pdfBuffer.length);
 
-    // Enviar email con PDF adjunto
+    // Enviar email con PDF
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -195,4 +156,4 @@ const addPages = async () => {
     console.error('Generate PDF error:', error.message);
     return res.status(500).json({ error: 'Internal server error', message: error.message });
   }
-}
+};
