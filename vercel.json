@@ -1,3 +1,17 @@
 {
-  "version": 2
+  "version": 2,
+  "functions": {
+    "api/generate-pdf.js": {
+      "maxDuration": 300
+    },
+    "api/confirm.js": {
+      "maxDuration": 60
+    },
+    "api/payment.js": {
+      "maxDuration": 30
+    },
+    "api/generate.js": {
+      "maxDuration": 30
+    }
+  }
 }
