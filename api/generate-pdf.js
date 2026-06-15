@@ -102,10 +102,29 @@ module.exports = async function handler(req, res) {
          .text('magicatrama@gmail.com', 0, 700, { align: 'center' });
 
       // Paginas con imagenes
-      const addPages = async () => {
+const addPages = async () => {
         for (let i = 0; i < images.length; i++) {
           doc.addPage();
-          doc.rect(0, 0, doc.page.width, doc.page.height).fill('#FFFFFF');
+
+          try {
+            const imgResponse = await axios.get(images[i], { responseType: 'arraybuffer' });
+            const imgBuffer = Buffer.from(imgResponse.data);
+            doc.image(imgBuffer, 40, 40, { 
+              width: doc.page.width - 80,
+              height: doc.page.height - 80,
+              align: 'center',
+              valign: 'center'
+            });
+          } catch (err) {
+            console.error('Error adding image', i, err.message);
+            doc.fill('#9B8AAD').fontSize(14).text('Pagina ' + (i + 1), 40, 400, { align: 'center' });
+          }
+
+          doc.fill('#CCCCCC').fontSize(8).text('magicatrama.com  •  Pagina ' + (i + 1), 0, doc.page.height - 30, { align: 'center' });
+        }
+
+        doc.end();
+      };
 
           try {
             const imgResponse = await axios.get(images[i], { responseType: 'arraybuffer' });
