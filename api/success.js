@@ -40,7 +40,81 @@ module.exports = async function handler(req, res) {
     const savedData = JSON.parse(localStorage.getItem('magicatrama_order') || '{}');
     try {
       document.getElementById('status').textContent = 'Confirmando pago con PayPal...';
-      const response = await fetch('/api/confirm', {
+      async function confirmPayment() {
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get('token');
+
+    if (!orderId) {
+      document.getElementById('emoji').textContent = '😔';
+      document.getElementById('title').textContent = 'Algo salio mal';
+      document.getElementById('message').textContent = 'No encontramos tu orden. Contactanos a magicatrama@gmail.com';
+      document.getElementById('status').textContent = 'Error: orden no encontrada';
+      document.getElementById('btn').style.display = 'inline-block';
+      return;
+    }
+
+    const savedData = JSON.parse(localStorage.getItem('magicatrama_order') || '{}');
+
+    try {
+      document.getElementById('status').textContent = 'Confirmando pago con PayPal...';
+
+      // Paso 1: Confirmar pago
+      const confirmResponse = await fetch('/api/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: orderId,
+          customerEmail: savedData.customerEmail || 'magicatrama@gmail.com',
+          customerName: savedData.customerName || 'Cliente',
+          childName: savedData.childName || 'el nino',
+          story: savedData.story || '',
+          packLabel: savedData.packLabel || 'Pack Explorador',
+          amount: savedData.amount || '4.99'
+        })
+      });
+
+      const confirmData = await confirmResponse.json();
+      if (!confirmData.success) throw new Error('Error al confirmar pago');
+
+      document.getElementById('emoji').textContent = '🎉';
+      document.getElementById('title').textContent = 'Pago confirmado!';
+      document.getElementById('message').textContent = 'Gracias por tu compra. Estamos generando tu libro ahora mismo...';
+      document.getElementById('status').textContent = 'Generando tu PDF personalizado...';
+
+      // Paso 2: Generar PDF
+      const pdfResponse = await fetch('/api/generate-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          childName: savedData.childName || 'el nino',
+          story: savedData.story || '',
+          packLabel: savedData.packLabel || 'Pack Explorador',
+          customerEmail: savedData.customerEmail || 'magicatrama@gmail.com',
+          customerName: savedData.customerName || 'Cliente'
+        })
+      });
+
+      const pdfData = await pdfResponse.json();
+
+      if (pdfData.success) {
+        document.getElementById('emoji').textContent = '📚';
+        document.getElementById('title').textContent = 'Tu libro esta en camino!';
+        document.getElementById('message').textContent = 'Hemos enviado tu PDF personalizado a tu correo. Revisa tu bandeja de entrada.';
+        document.getElementById('status').textContent = 'Email enviado a ' + (savedData.customerEmail || 'tu correo');
+        localStorage.removeItem('magicatrama_order');
+      } else {
+        throw new Error('Error generando PDF');
+      }
+
+    } catch (error) {
+      document.getElementById('emoji').textContent = '😔';
+      document.getElementById('title').textContent = 'Hubo un problema';
+      document.getElementById('message').textContent = 'Tu pago fue procesado. Te enviaremos el libro manualmente. Contactanos a magicatrama@gmail.com';
+      document.getElementById('status').textContent = 'Orden: ' + orderId;
+    }
+
+    document.getElementById('btn').style.display = 'inline-block';
+  }
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
