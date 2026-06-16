@@ -685,8 +685,9 @@
       <div class="upload-zone" id="upload-zone" onclick="document.getElementById(&#39;file-input&#39;).click()">
         <img class="upload-preview" id="preview-img" src="https://magica-trama.vercel.app/" alt="Vista previa">
         <div class="upload-icon" id="upload-icon">📸</div>
-        <div class="upload-label">Arrastra una foto o haz clic aquí</div>
-        <div class="upload-sub">JPG, PNG — máx. 10 MB</div>
+<div class="upload-label">Arrastra una foto o haz clic aquí</div>
+        <div class="upload-sub">📌 Importante: usa una foto recortada solo al rostro del niño/a </div>
+        <div class="upload-sub" style="margin-top:4px;">JPG, PNG — máx. 5 MB</div>
       </div>
       <input type="file" id="file-input" accept="image/*">
     </div>
@@ -1034,32 +1035,12 @@
     bar.offsetWidth;
     bar.style.animation = '';
 
-// Comprimir imagen antes de enviar
-    var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d');
-    var img = new Image();
-    img.onload = function() {
-      // Redimensionar a máximo 800px manteniendo proporción
-      var maxSize = 800;
-      var width = img.width;
-      var height = img.height;
-      if (width > height) {
-        if (width > maxSize) { height = height * maxSize / width; width = maxSize; }
-      } else {
-        if (height > maxSize) { width = width * maxSize / height; height = maxSize; }
-      }
-      canvas.width = width;
-      canvas.height = height;
-      ctx.drawImage(img, 0, 0, width, height);
-      // Comprimir a calidad 0.7 (70%) — suficiente para la IA
-      var compressed = canvas.toDataURL('image/jpeg', 0.7);
-      var imageBase64 = compressed.split(',')[1];
+var reader = new FileReader();
+    reader.onload = function(e) {
+      var imageBase64 = e.target.result.split(',')[1];
       callGenerateAPI(name, story, imageBase64);
     };
-    var reader = new FileReader();
-    reader.onload = function(e) { img.src = e.target.result; };
-    reader.readAsDataURL(file);
-  }
+    reader.readAsDataURL(file);  }
 
   function callGenerateAPI(name, story, imageBase64) {
     fetch('/api/generate', {
