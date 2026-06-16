@@ -1011,7 +1011,7 @@
 
   var generatedImages = [];
 
-  function startGeneration() {
+ function startGeneration() {
     var name = document.getElementById('child-name').value.trim();
     var story = document.getElementById('story-input').value.trim();
     var email = document.getElementById('customer-email').value.trim();
@@ -1035,13 +1035,13 @@
     bar.offsetWidth;
     bar.style.animation = '';
 
-var reader = new FileReader();
+    var reader = new FileReader();
     reader.onload = function(e) {
       var imageBase64 = e.target.result.split(',')[1];
       callGenerateAPI(name, story, imageBase64);
     };
-    reader.readAsDataURL(file);  }
-
+    reader.readAsDataURL(fileInput.files[0]);
+  }
   function callGenerateAPI(name, story, imageBase64) {
     fetch('/api/generate', {
       method: 'POST',
