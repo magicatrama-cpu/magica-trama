@@ -1034,12 +1034,30 @@
     bar.offsetWidth;
     bar.style.animation = '';
 
-    var file = fileInput.files[0];
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      var imageBase64 = e.target.result.split(',')[1];
+// Comprimir imagen antes de enviar
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    var img = new Image();
+    img.onload = function() {
+      // Redimensionar a máximo 800px manteniendo proporción
+      var maxSize = 800;
+      var width = img.width;
+      var height = img.height;
+      if (width > height) {
+        if (width > maxSize) { height = height * maxSize / width; width = maxSize; }
+      } else {
+        if (height > maxSize) { width = width * maxSize / height; height = maxSize; }
+      }
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+      // Comprimir a calidad 0.7 (70%) — suficiente para la IA
+      var compressed = canvas.toDataURL('image/jpeg', 0.7);
+      var imageBase64 = compressed.split(',')[1];
       callGenerateAPI(name, story, imageBase64);
     };
+    var reader = new FileReader();
+    reader.onload = function(e) { img.src = e.target.result; };
     reader.readAsDataURL(file);
   }
 
