@@ -1035,10 +1035,26 @@
     bar.offsetWidth;
     bar.style.animation = '';
 
+var imgEl = new Image();
     var reader = new FileReader();
     reader.onload = function(e) {
-      var imageBase64 = e.target.result.split(',')[1];
-      callGenerateAPI(name, story, imageBase64);
+      imgEl.onload = function() {
+        var canvas = document.createElement('canvas');
+        var maxSize = 600;
+        var w = imgEl.width;
+        var h = imgEl.height;
+        if (w > h) {
+          if (w > maxSize) { h = Math.round(h * maxSize / w); w = maxSize; }
+        } else {
+          if (h > maxSize) { w = Math.round(w * maxSize / h); h = maxSize; }
+        }
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext('2d').drawImage(imgEl, 0, 0, w, h);
+        var compressed = canvas.toDataURL('image/jpeg', 0.75);
+        callGenerateAPI(name, story, compressed.split(',')[1]);
+      };
+      imgEl.src = e.target.result;
     };
     reader.readAsDataURL(fileInput.files[0]);
   }
