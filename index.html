@@ -1116,13 +1116,19 @@ var imgEl = new Image();
       + makeImg(generatedImages[1], '🚀')
       + '</div>'
       + '<div style="background:rgba(26,5,51,0.05);border-radius:12px;padding:10px 14px;font-size:0.75rem;color:#5A3E7A;margin-bottom:16px;">Muestra protegida con marca de agua</div>'
-      + '<button id="pay-btn" style="width:100%;padding:15px;background:linear-gradient(135deg,#FF6B6B,#FF4757);color:white;font-family:Nunito,sans-serif;font-weight:800;font-size:1.05rem;border:none;border-radius:14px;cursor:pointer;margin-bottom:8px;">'
-      + 'Comprar ' + packLabel + ' — ' + packPrice
++ '<button id="pay-btn-paypal" style="width:100%;padding:15px;background:linear-gradient(135deg,#003087,#009cde);color:white;font-family:Nunito,sans-serif;font-weight:800;font-size:1rem;border:none;border-radius:14px;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;">'
+      + '💳 Pagar con PayPal — ' + packPrice
+      + '</button>'
+      + '<button id="pay-btn-mp" style="width:100%;padding:15px;background:linear-gradient(135deg,#00b1ea,#009ee3);color:white;font-family:Nunito,sans-serif;font-weight:800;font-size:1rem;border:none;border-radius:14px;cursor:pointer;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px;">'
+      + '💚 Pagar con Mercado Pago — ' + packPrice
       + '</button>'
       + '<p style="font-size:0.78rem;color:#5A3E7A;">20% de descuento en los proximos <strong style="color:#FF6B6B">10 minutos</strong></p>';
 
-    document.getElementById('pay-btn').addEventListener('click', function() {
-      initiatePayment(packPrice.replace('$',''), packLabel);
+   document.getElementById('pay-btn-paypal').addEventListener('click', function() {
+      initiatePayment(packPrice.replace('$',''), packLabel, 'paypal');
+    });
+    document.getElementById('pay-btn-mp').addEventListener('click', function() {
+      initiatePayment(packPrice.replace('$',''), packLabel, 'mercadopago');
     });
   }
 
