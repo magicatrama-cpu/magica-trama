@@ -975,6 +975,25 @@
         document.getElementById('upload-icon').style.display = 'none';
       };
       reader.readAsDataURL(file);
+      // Recuperar sesion si el cliente volvio de PayPal
+    var savedImages = localStorage.getItem('magicatrama_images');
+    var savedOrder = localStorage.getItem('magicatrama_order');
+    if (savedImages && savedOrder) {
+      var order = JSON.parse(savedOrder);
+      var images = JSON.parse(savedImages);
+      if (images.length > 0) {
+        generatedImages = images;
+        // Restaurar campos del formulario
+        if (order.customerEmail) document.getElementById('customer-email').value = order.customerEmail;
+        if (order.childName) document.getElementById('child-name').value = order.childName;
+        if (order.story) document.getElementById('story-input').value = order.story;
+        // Mostrar banner de recuperacion
+        var banner = document.createElement('div');
+        banner.style = 'position:fixed;top:70px;left:0;right:0;background:#FFD166;color:#1A0533;text-align:center;padding:12px;font-family:Nunito,sans-serif;font-weight:800;font-size:0.9rem;z-index:200;';
+        banner.innerHTML = 'Bienvenido de vuelta ' + (order.customerName || '') + '! Tu libro de <strong>' + (order.childName || '') + '</strong> ya esta listo. <button onclick="recoverSession()" style="background:#FF6B6B;color:white;border:none;padding:6px 16px;border-radius:20px;font-weight:800;cursor:pointer;margin-left:10px;">Ver mis paginas</button> <button onclick="this.parentElement.remove()" style="background:transparent;border:none;cursor:pointer;font-size:1.2rem;margin-left:6px;">✕</button>';
+        document.body.appendChild(banner);
+      }
+    }
     });
 
     const zone = document.getElementById('upload-zone');
@@ -1069,6 +1088,7 @@
     .then(function(result) {
       if (!result.ok) throw new Error(result.data.error || 'Error del servidor');
       generatedImages = result.data.images;
+      localStorage.setItem('magicatrama_images', JSON.stringify(result.data.images));
       document.getElementById('pack-selector').style.display = 'block';
       document.getElementById('loader-emoji').textContent = '✅';
       document.getElementById('loader-title').textContent = 'Muestras listas!';
@@ -1172,6 +1192,12 @@
       btn.disabled = false;
       alert('Hubo un error al procesar el pago. Intenta de nuevo.');
     });
+  }
+  function recoverSession() {
+    var banner = document.querySelector('div[style*="position:fixed;top:70px"]');
+    if (banner) banner.remove();
+    document.getElementById('modal').classList.add('active');
+    showSamples();
   }
 </script>
 
