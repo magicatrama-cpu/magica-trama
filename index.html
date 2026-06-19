@@ -1011,7 +1011,7 @@
 
   var generatedImages = [];
 
- function startGeneration() {
+  function startGeneration() {
     var name = document.getElementById('child-name').value.trim();
     var story = document.getElementById('story-input').value.trim();
     var email = document.getElementById('customer-email').value.trim();
@@ -1035,7 +1035,7 @@
     bar.offsetWidth;
     bar.style.animation = '';
 
-var imgEl = new Image();
+    var imgEl = new Image();
     var reader = new FileReader();
     reader.onload = function(e) {
       imgEl.onload = function() {
@@ -1058,13 +1058,14 @@ var imgEl = new Image();
     };
     reader.readAsDataURL(fileInput.files[0]);
   }
+
   function callGenerateAPI(name, story, imageBase64) {
     fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ childName: name, story: story, imageBase64: imageBase64 })
     })
-    .then(function(response) { return response.json().then(function(data) { return { ok: response.ok, data: data }; }); })
+    .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
     .then(function(result) {
       if (!result.ok) throw new Error(result.data.error || 'Error del servidor');
       generatedImages = result.data.images;
@@ -1116,15 +1117,15 @@ var imgEl = new Image();
       + makeImg(generatedImages[1], '🚀')
       + '</div>'
       + '<div style="background:rgba(26,5,51,0.05);border-radius:12px;padding:10px 14px;font-size:0.75rem;color:#5A3E7A;margin-bottom:16px;">Muestra protegida con marca de agua</div>'
-+ '<button id="pay-btn-paypal" style="width:100%;padding:15px;background:linear-gradient(135deg,#003087,#009cde);color:white;font-family:Nunito,sans-serif;font-weight:800;font-size:1rem;border:none;border-radius:14px;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;">'
-      + '💳 Pagar con PayPal — ' + packPrice
+      + '<button id="pay-btn-paypal" style="width:100%;padding:15px;background:linear-gradient(135deg,#003087,#009cde);color:white;font-family:Nunito,sans-serif;font-weight:800;font-size:1rem;border:none;border-radius:14px;cursor:pointer;margin-bottom:10px;">'
+      + 'Pagar con PayPal — ' + packPrice
       + '</button>'
-      + '<button id="pay-btn-mp" style="width:100%;padding:15px;background:linear-gradient(135deg,#00b1ea,#009ee3);color:white;font-family:Nunito,sans-serif;font-weight:800;font-size:1rem;border:none;border-radius:14px;cursor:pointer;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px;">'
-      + '💚 Pagar con Mercado Pago — ' + packPrice
+      + '<button id="pay-btn-mp" style="width:100%;padding:15px;background:linear-gradient(135deg,#00b1ea,#009ee3);color:white;font-family:Nunito,sans-serif;font-weight:800;font-size:1rem;border:none;border-radius:14px;cursor:pointer;margin-bottom:8px;">'
+      + 'Pagar con Mercado Pago — ' + packPrice
       + '</button>'
       + '<p style="font-size:0.78rem;color:#5A3E7A;">20% de descuento en los proximos <strong style="color:#FF6B6B">10 minutos</strong></p>';
 
-   document.getElementById('pay-btn-paypal').addEventListener('click', function() {
+    document.getElementById('pay-btn-paypal').addEventListener('click', function() {
       initiatePayment(packPrice.replace('$',''), packLabel, 'paypal');
     });
     document.getElementById('pay-btn-mp').addEventListener('click', function() {
@@ -1159,7 +1160,7 @@ var imgEl = new Image();
         customerEmail: orderData.customerEmail
       })
     })
-    .then(function(response) { return response.json().then(function(data) { return { ok: response.ok, data: data }; }); })
+    .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
     .then(function(result) {
       if (!result.ok) throw new Error(result.data.error || 'Error al crear el pago');
       var url = method === 'mercadopago' ? result.data.checkoutUrl : result.data.approvalUrl;
@@ -1172,39 +1173,7 @@ var imgEl = new Image();
       alert('Hubo un error al procesar el pago. Intenta de nuevo.');
     });
   }
-    var btn = document.getElementById('pay-btn');
-    btn.textContent = 'Procesando...';
-    btn.disabled = true;
-
-    var orderData = {
-      customerName: document.getElementById('child-name').value.trim(),
-      customerEmail: document.getElementById('customer-email').value.trim(),
-      childName: document.getElementById('child-name').value.trim(),
-      story: document.getElementById('story-input').value.trim(),
-      packLabel: packLabel,
-      amount: amount
-    };
-    localStorage.setItem('magicatrama_order', JSON.stringify(orderData));
-
-    fetch('/api/payment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount: amount, packLabel: packLabel })
-    })
-    .then(function(response) { return response.json().then(function(data) { return { ok: response.ok, data: data }; }); })
-    .then(function(result) {
-      if (!result.ok) throw new Error(result.data.error || 'Error al crear el pago');
-      window.location.href = result.data.approvalUrl;
-    })
-    .catch(function(error) {
-      console.error(error);
-      btn.textContent = 'Comprar ' + packLabel;
-      btn.disabled = false;
-      alert('Hubo un error al procesar el pago. Intenta de nuevo.');
-    });
-  }
 </script>
-
 
 <span id="PING_IFRAME_FORM_DETECTION" style="display: none;"></span></body><grammarly-desktop-integration data-grammarly-shadow-root="true" style="visibility: visible !important;"><template shadowrootmode="open"><style>
       div.grammarly-desktop-integration {
