@@ -1132,7 +1132,46 @@ var imgEl = new Image();
     });
   }
 
-  function initiatePayment(amount, packLabel) {
+  function initiatePayment(amount, packLabel, method) {
+    var btnId = method === 'mercadopago' ? 'pay-btn-mp' : 'pay-btn-paypal';
+    var btn = document.getElementById(btnId);
+    btn.textContent = 'Procesando...';
+    btn.disabled = true;
+
+    var orderData = {
+      customerName: document.getElementById('child-name').value.trim(),
+      customerEmail: document.getElementById('customer-email').value.trim(),
+      childName: document.getElementById('child-name').value.trim(),
+      story: document.getElementById('story-input').value.trim(),
+      packLabel: packLabel,
+      amount: amount
+    };
+    localStorage.setItem('magicatrama_order', JSON.stringify(orderData));
+
+    var endpoint = method === 'mercadopago' ? '/api/payment-mp' : '/api/payment';
+
+    fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount: amount,
+        packLabel: packLabel,
+        customerEmail: orderData.customerEmail
+      })
+    })
+    .then(function(response) { return response.json().then(function(data) { return { ok: response.ok, data: data }; }); })
+    .then(function(result) {
+      if (!result.ok) throw new Error(result.data.error || 'Error al crear el pago');
+      var url = method === 'mercadopago' ? result.data.checkoutUrl : result.data.approvalUrl;
+      window.location.href = url;
+    })
+    .catch(function(error) {
+      console.error(error);
+      btn.textContent = method === 'mercadopago' ? 'Pagar con Mercado Pago' : 'Pagar con PayPal';
+      btn.disabled = false;
+      alert('Hubo un error al procesar el pago. Intenta de nuevo.');
+    });
+  }
     var btn = document.getElementById('pay-btn');
     btn.textContent = 'Procesando...';
     btn.disabled = true;
