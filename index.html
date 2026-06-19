@@ -976,9 +976,10 @@
       };
       reader.readAsDataURL(file);
       // Recuperar sesion si el cliente volvio de PayPal
-    var savedImages = localStorage.getItem('magicatrama_images');
+   var savedImages = localStorage.getItem('magicatrama_images');
     var savedOrder = localStorage.getItem('magicatrama_order');
-    if (savedImages && savedOrder) {
+    var cameFromPayment = window.location.search.includes('cancel') || document.referrer.includes('paypal') || document.referrer.includes('mercadopago');
+    if (savedImages && savedOrder && cameFromPayment) {
       var order = JSON.parse(savedOrder);
       var images = JSON.parse(savedImages);
       if (images.length > 0) {
