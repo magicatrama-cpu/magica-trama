@@ -27,7 +27,28 @@ module.exports = async function handler(req, res) {
     });
     const authData = await authResponse.json();
     const accessToken = authData.access_token;
-
+// Si es Mercado Pago, saltar verificacion de PayPal
+    if (req.body.paymentSource === 'mercadopago') {
+      console.log('Mercado Pago payment confirmed:', orderId);
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user: 'magicatrama@gmail.com', pass: process.env.GMAIL_PASSWORD }
+      });
+      await transporter.sendMail({
+        from: '"Magica Trama" <magicatrama@gmail.com>',
+        to: req.body.customerEmail,
+        subject: 'Tu libro de Magica Trama esta listo, ' + req.body.customerName + '!',
+        html: '<div style="font-family:Arial,sans-serif;padding:20px;"><h2>Hola ' + req.body.customerName + '!</h2><p>Tu pago fue confirmado. En los proximos minutos recibiras tu PDF personalizado.</p></div>'
+      });
+      await transporter.sendMail({
+        from: '"Magica Trama" <magicatrama@gmail.com>',
+        to: 'magicatrama@gmail.com',
+        subject: 'Nueva venta MP! ' + req.body.packLabel + ' - $' + req.body.amount,
+        html: '<div style="font-family:Arial,sans-serif;padding:20px;"><h2>Nueva venta Mercado Pago</h2><p><strong>Cliente:</strong> ' + req.body.customerName + '</p><p><strong>Email:</strong> ' + req.body.customerEmail + '</p><p><strong>Nino:</strong> ' + req.body.childName + '</p><p><strong>Pack:</strong> ' + req.body.packLabel + '</p><p><strong>Monto:</strong> $' + req.body.amount + ' USD</p><p><strong>Payment ID:</strong> ' + orderId + '</p></div>'
+      });
+      return res.status(200).json({ success: true });
+    }
+    
     // Verificar estado de la orden
     const orderResponse = await fetch('https://api-m.paypal.com/v2/checkout/orders/' + orderId, {
       method: 'GET',
