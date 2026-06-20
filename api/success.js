@@ -1,5 +1,5 @@
 module.exports = async function handler(req, res) {
-  res.setHeader('Content-Type', 'text/html');
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.status(200).send(`<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -22,14 +22,12 @@ module.exports = async function handler(req, res) {
   <div class="emoji" id="emoji">⏳</div>
   <h1 id="title">Confirmando tu pago...</h1>
   <p id="message">Estamos procesando tu pedido. Esto toma solo unos segundos.</p>
-  <div class="status" id="status">Conectando con PayPal...</div>
+  <div class="status" id="status">Conectando...</div>
   <a href="/" class="btn" id="btn" style="display:none;">Volver al inicio</a>
 </div>
 <script>
 function getParam(name) {
-  var url = window.location.search;
-  var params = new URLSearchParams(url);
-  return params.get(name);
+  return new URLSearchParams(window.location.search).get(name);
 }
 
 function updateUI(emoji, title, message, status) {
@@ -44,7 +42,11 @@ function showBtn() {
 }
 
 function confirmPayment() {
-  var orderId = getParam('token');
+  var paypalToken = getParam('token');
+  var mpPaymentId = getParam('payment_id');
+  var mpStatus = getParam('status');
+  var orderId = paypalToken || mpPaymentId;
+  var paymentSource = paypalToken ? 'paypal' : 'mercadopago';
 
   if (!orderId) {
     updateUI('😔', 'Algo salio mal', 'No encontramos tu orden. Contactanos a magicatrama@gmail.com', 'Error: orden no encontrada');
@@ -52,46 +54,47 @@ function confirmPayment() {
     return;
   }
 
+  if (paymentSource === 'mercadopago' && mpStatus === 'rejected') {
+    updateUI('😔', 'Pago rechazado', 'Tu pago fue rechazado. Intenta con otro metodo de pago.', 'Estado: rechazado');
+    showBtn();
+    return;
+  }
+
   var savedData = {};
-  try {
-    savedData = JSON.parse(localStorage.getItem('magicatrama_order') || '{}');
-  } catch(e) {}
+  try { savedData = JSON.parse(localStorage.getItem('magicatrama_order') || '{}'); } catch(e) {}
 
-  var confirmBody = JSON.stringify({
-    orderId: orderId,
-    customerEmail: savedData.customerEmail || 'magicatrama@gmail.com',
-    customerName: savedData.customerName || 'Cliente',
-    childName: savedData.childName || 'el nino',
-    story: savedData.story || 'aventura magica',
-    packLabel: savedData.packLabel || 'Pack Explorador',
-    amount: savedData.amount || '4.99'
-  });
-
-  document.getElementById('status').textContent = 'Confirmando pago con PayPal...';
+  var source = paymentSource === 'mercadopago' ? 'Mercado Pago' : 'PayPal';
+  document.getElementById('status').textContent = 'Confirmando pago con ' + source + '...';
 
   fetch('/api/confirm', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: confirmBody
+    body: JSON.stringify({
+      orderId: orderId,
+      paymentSource: paymentSource,
+      customerEmail: savedData.customerEmail || 'magicatrama@gmail.com',
+      customerName: savedData.customerName || 'Cliente',
+      childName: savedData.childName || 'el nino',
+      story: savedData.story || 'aventura magica',
+      packLabel: savedData.packLabel || 'Pack Explorador',
+      amount: savedData.amount || '4.99'
+    })
   })
   .then(function(r) { return r.json(); })
   .then(function(confirmData) {
     if (!confirmData.success) throw new Error('Error al confirmar pago');
-
     updateUI('🎨', 'Pago confirmado!', 'Estamos generando tu libro personalizado. Esto puede tomar 2-3 minutos...', 'Generando tu PDF...');
-
-    var pdfBody = JSON.stringify({
-      childName: savedData.childName || 'el nino',
-      story: savedData.story || 'aventura magica',
-      packLabel: savedData.packLabel || 'Pack Explorador',
-      customerEmail: savedData.customerEmail || 'magicatrama@gmail.com',
-      customerName: savedData.customerName || 'Cliente'
-    });
 
     return fetch('/api/generate-pdf', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: pdfBody
+      body: JSON.stringify({
+        childName: savedData.childName || 'el nino',
+        story: savedData.story || 'aventura magica',
+        packLabel: savedData.packLabel || 'Pack Explorador',
+        customerEmail: savedData.customerEmail || 'magicatrama@gmail.com',
+        customerName: savedData.customerName || 'Cliente'
+      })
     });
   })
   .then(function(r) { return r.json(); })
@@ -99,6 +102,7 @@ function confirmPayment() {
     if (pdfData.success) {
       updateUI('📚', 'Tu libro esta en camino!', 'Hemos enviado tu PDF personalizado a tu correo. Revisa tu bandeja de entrada y spam.', 'Email enviado a ' + (savedData.customerEmail || 'tu correo'));
       localStorage.removeItem('magicatrama_order');
+      localStorage.removeItem('magicatrama_images');
     } else {
       throw new Error('Error generando PDF');
     }
@@ -106,7 +110,7 @@ function confirmPayment() {
   })
   .catch(function(error) {
     console.error(error);
-    updateUI('😔', 'Hubo un problema', 'Tu pago fue procesado. Te enviaremos el libro manualmente. Escríbenos a magicatrama@gmail.com con tu numero de orden.', 'Orden: ' + orderId);
+    updateUI('😔', 'Hubo un problema', 'Tu pago fue procesado. Te enviaremos el libro manualmente. Escribenos a magicatrama@gmail.com con tu numero de orden.', 'Orden: ' + orderId);
     showBtn();
   });
 }
