@@ -6,33 +6,11 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { childName, story, imageBase64 } = req.body;
+    const { childName, story } = req.body;
 
-    // Paso 1: Subir imagen a Fal.ai storage
-    const imageBuffer = Buffer.from(imageBase64, 'base64');
-    
-    const uploadResponse = await fetch('https://fal.run/fal-ai/storage/upload', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Key ' + process.env.FAL_KEY,
-        'Content-Type': 'image/jpeg'
-      },
-      body: imageBuffer
-    });
+    const prompt = 'Coloring book page for children, the main character is a child named ' + childName + ', ' + story + ', clean bold black outlines only, pure white background, no shading, no gradients, no color fills, wide spaces for coloring, vector line art, professional children illustration, single page centered composition';
 
-    const uploadData = await uploadResponse.json();
-    console.log('Upload response:', JSON.stringify(uploadData));
-
-    const imageUrl = uploadData.url;
-
-    if (!imageUrl) {
-      throw new Error('Could not upload image: ' + JSON.stringify(uploadData));
-    }
-
-    // Paso 2: Generar imagenes con IP-Adapter Face
-    const prompt = 'Children coloring book page, cartoon caricature of ' + childName + ', ' + story + ', clean bold black outlines only, pure white background, no shading, no gradients, no color fills, wide spaces for coloring, vector line art, professional children book illustration, single page centered composition';
-
-    const response = await fetch('https://fal.run/fal-ai/ip-adapter-face-id', {
+    const response = await fetch('https://fal.run/fal-ai/flux/schnell', {
       method: 'POST',
       headers: {
         'Authorization': 'Key ' + process.env.FAL_KEY,
@@ -40,17 +18,14 @@ module.exports = async function handler(req, res) {
       },
       body: JSON.stringify({
         prompt: prompt,
-        face_image_url: imageUrl,
-        negative_prompt: 'color, shading, gradients, realistic, photograph, blurry, dark background, grey',
-        num_inference_steps: 30,
+        image_size: 'portrait_4_3',
+        num_inference_steps: 4,
         num_images: 2,
-        guidance_scale: 7.5,
-        image_size: 'portrait_4_3'
+        enable_safety_checker: true
       })
     });
 
     const data = await response.json();
-    console.log('IP-Adapter response:', JSON.stringify(data));
 
     if (!response.ok) {
       console.error('Fal.ai error:', data);
