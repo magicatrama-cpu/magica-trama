@@ -22,10 +22,10 @@ module.exports = async function handler(req, res) {
           unit_price: parseFloat(amount)
         }],
         payer: { email: customerEmail },
-        back_urls: {
+back_urls: {
           success: 'https://magica-trama.vercel.app/api/success',
-          failure: 'https://magica-trama.vercel.app',
-          pending: 'https://magica-trama.vercel.app'
+          failure: 'https://magica-trama.vercel.app/api/success',
+          pending: 'https://magica-trama.vercel.app/api/success'
         },
         auto_return: 'approved',
         statement_descriptor: 'MAGICA TRAMA',
