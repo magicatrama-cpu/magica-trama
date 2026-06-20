@@ -1144,8 +1144,7 @@
       + '<button id="pay-btn-mp" style="width:100%;padding:15px;background:linear-gradient(135deg,#00b1ea,#009ee3);color:white;font-family:Nunito,sans-serif;font-weight:800;font-size:1rem;border:none;border-radius:14px;cursor:pointer;margin-bottom:8px;">'
       + 'Pagar con Mercado Pago — ' + packPrice
       + '</button>'
-      + '<p style="font-size:0.78rem;color:#5A3E7A;">20% de descuento en los proximos <strong style="color:#FF6B6B">10 minutos</strong></p>';
-
+      
     document.getElementById('pay-btn-paypal').addEventListener('click', function() {
       initiatePayment(packPrice.replace('$',''), packLabel, 'paypal');
     });
